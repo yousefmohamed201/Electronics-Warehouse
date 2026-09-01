@@ -37,8 +37,8 @@ Backend
 - C#
 - SQL Server
 - ASP.NET Core Identity
-- JWT Authentication
-- Swagger / OpenAPI
+- ASP.NET MVC Web Development
+- Generative Al, Al Agents & Workflow Automation
 
 Frontend
 
