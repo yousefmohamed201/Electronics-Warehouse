@@ -1,0 +1,41 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ElectronicsWareHouse.Models.Category
+
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+<h1>Category Details</h1>
+
+<div class="card">
+    <div class="card-body">
+
+        <h4>@Model.CategoryName</h4>
+
+        <p>
+            <strong>ID:</strong>
+            @Model.CategoryID
+        </p>
+
+        <p>
+            <strong>Description:</strong>
+            @Model.Description
+        </p>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.CategoryID"
+           class="btn btn-warning">
+            Edit
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </div>
+</div>

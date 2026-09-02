@@ -1,0 +1,62 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ElectronicsWareHouse.Models.Purchase
+
+@{
+    ViewData["Title"] = "Delete Purchase";
+}
+
+<h1>Delete Purchase</h1>
+
+<div class="alert alert-danger">
+    Are you sure you want to delete this purchase?
+    <br />
+    Deleting it will also remove the quantities that were added to stock.
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <p>
+            <strong>Purchase ID:</strong>
+            @Model.PurchaseID
+        </p>
+
+        <p>
+            <strong>Supplier:</strong>
+            @Model.Supplier.SupplierName
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            @Model.PurchaseDate.ToString("yyyy-MM-dd HH:mm")
+        </p>
+
+        <p>
+            <strong>Total:</strong>
+            @Model.TotalAmount.ToString("0.00")
+        </p>
+
+    </div>
+</div>
+
+<form asp-action="Delete"
+      method="post">
+
+    <input type="hidden"
+           asp-for="PurchaseID" />
+
+    <button type="submit"
+            class="btn btn-danger">
+        Delete Purchase
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
