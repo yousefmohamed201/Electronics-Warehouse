@@ -1,0 +1,76 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ElectronicsWareHouse.Models.Purchase
+
+@{
+    ViewData["Title"] = "Purchase Details";
+}
+
+<h1>Purchase Details</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h4>Purchase #@Model.PurchaseID</h4>
+
+        <p>
+            <strong>Supplier:</strong>
+            @Model.Supplier.SupplierName
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            @Model.PurchaseDate.ToString("yyyy-MM-dd HH:mm")
+        </p>
+
+        <p>
+            <strong>Total:</strong>
+            @Model.TotalAmount.ToString("0.00")
+        </p>
+
+    </div>
+</div>
+
+<h4>Purchase Items</h4>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Cost</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.PurchaseItems)
+        {
+            <tr>
+                <td>
+                    @item.Product.ProductName
+                </td>
+
+                <td>
+                    @item.Quantity
+                </td>
+
+                <td>
+                    @item.UnitCost.ToString("0.00")
+                </td>
+
+                <td>
+                    @((item.Quantity * item.UnitCost).ToString("0.00"))
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index"
+   class="btn btn-secondary">
+    Back
+</a>

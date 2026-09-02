@@ -1,0 +1,282 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ElectronicsWareHouse.Models.Purchase
+
+@{
+    ViewData["Title"] = "New Purchase";
+}
+
+<h1>New Purchase</h1>
+
+<form asp-action="Create" method="post">
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3">
+    </div>
+
+    <!-- Supplier -->
+    <div class="mb-4">
+        <label asp-for="SupplierID"
+               class="form-label">
+            Supplier
+        </label>
+
+        <select asp-for="SupplierID"
+                asp-items="ViewBag.SupplierID"
+                class="form-select">
+            <option value="">
+                -- Select Supplier --
+            </option>
+        </select>
+    </div>
+
+    <h4>Purchase Items</h4>
+
+    <table class="table table-bordered"
+           id="itemsTable">
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="width: 150px;">
+                    Quantity
+                </th>
+                <th style="width: 180px;">
+                    Unit Cost
+                </th>
+                <th style="width: 180px;">
+                    Total
+                </th>
+                <th style="width: 100px;">
+                    Action
+                </th>
+            </tr>
+        </thead>
+
+        <tbody id="itemsBody">
+
+            <tr class="purchase-row">
+
+                <td>
+                    <select name="items[0].ProductID"
+                            class="form-select product-select">
+                        <option value="">
+                            -- Select Product --
+                        </option>
+
+                        @foreach (var product in ViewBag.Products)
+                        {
+                            <option value="@product.Value">
+                                @product.Text
+                            </option>
+                        }
+                    </select>
+                </td>
+
+                <td>
+                    <input type="number"
+                           name="items[0].Quantity"
+                           class="form-control quantity"
+                           min="1"
+                           value="1" />
+                </td>
+
+                <td>
+                    <input type="number"
+                           name="items[0].UnitCost"
+                           class="form-control unit-cost"
+                           min="0"
+                           step="0.01"
+                           value="0" />
+                </td>
+
+                <td>
+                    <input type="text"
+                           class="form-control row-total"
+                           value="0.00"
+                           readonly />
+                </td>
+
+                <td>
+                    <button type="button"
+                            class="btn btn-danger remove-row">
+                        Remove
+                    </button>
+                </td>
+
+            </tr>
+
+        </tbody>
+    </table>
+
+    <button type="button"
+            id="addRow"
+            class="btn btn-secondary mb-4">
+        + Add Product
+    </button>
+
+    <div class="text-end mb-4">
+
+        <h4>
+            Grand Total:
+            <span id="grandTotal">
+                0.00
+            </span>
+        </h4>
+
+    </div>
+
+    <button type="submit"
+            class="btn btn-success">
+        Create Purchase
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+@section Scripts {
+
+    <script>
+
+        let rowIndex = 1;
+
+        const itemsBody =
+            document.getElementById("itemsBody");
+
+        const addRowButton =
+            document.getElementById("addRow");
+
+        const grandTotal =
+            document.getElementById("grandTotal");
+
+
+        // Add new product row
+        addRowButton.addEventListener("click", function () {
+
+            const firstRow =
+                document.querySelector(".purchase-row");
+
+            const newRow =
+                firstRow.cloneNode(true);
+
+            newRow.querySelector(".product-select").name =
+                `items[${rowIndex}].ProductID`;
+
+            newRow.querySelector(".quantity").name =
+                `items[${rowIndex}].Quantity`;
+
+            newRow.querySelector(".unit-cost").name =
+                `items[${rowIndex}].UnitCost`;
+
+            newRow.querySelector(".product-select").value = "";
+
+            newRow.querySelector(".quantity").value = 1;
+
+            newRow.querySelector(".unit-cost").value = 0;
+
+            newRow.querySelector(".row-total").value = "0.00";
+
+            itemsBody.appendChild(newRow);
+
+            rowIndex++;
+
+            attachEvents(newRow);
+
+        });
+
+
+        function attachEvents(row) {
+
+            const quantity =
+                row.querySelector(".quantity");
+
+            const unitCost =
+                row.querySelector(".unit-cost");
+
+            const removeButton =
+                row.querySelector(".remove-row");
+
+
+            quantity.addEventListener("input", calculateTotal);
+
+            unitCost.addEventListener("input", calculateTotal);
+
+
+            removeButton.addEventListener("click", function () {
+
+                const rows =
+                    document.querySelectorAll(".purchase-row");
+
+                if (rows.length > 1) {
+
+                    row.remove();
+
+                    calculateGrandTotal();
+                }
+
+            });
+
+
+            function calculateTotal() {
+
+                const qty =
+                    parseFloat(quantity.value) || 0;
+
+                const cost =
+                    parseFloat(unitCost.value) || 0;
+
+                const total =
+                    qty * cost;
+
+                row.querySelector(".row-total").value =
+                    total.toFixed(2);
+
+                calculateGrandTotal();
+            }
+        }
+
+
+        function calculateGrandTotal() {
+
+            let total = 0;
+
+            document
+                .querySelectorAll(".purchase-row")
+                .forEach(function (row) {
+
+                    const qty =
+                        parseFloat(
+                            row.querySelector(".quantity").value
+                        ) || 0;
+
+                    const cost =
+                        parseFloat(
+                            row.querySelector(".unit-cost").value
+                        ) || 0;
+
+                    total += qty * cost;
+                });
+
+            grandTotal.textContent =
+                total.toFixed(2);
+        }
+
+
+        // Attach events to first row
+        document
+            .querySelectorAll(".purchase-row")
+            .forEach(function (row) {
+
+                attachEvents(row);
+
+            });
+
+    </script>
+}
