@@ -1,0 +1,66 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<ElectronicsWareHouse.Models.Sale>
+
+@{
+    ViewData["Title"] = "Sales";
+}
+
+<h1>Sales</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        New Sale
+    </a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Total Amount</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var sale in Model)
+        {
+            <tr>
+                <td>@sale.SaleID</td>
+
+                <td>
+                    @sale.SaleDate.ToString("yyyy-MM-dd HH:mm")
+                </td>
+
+                <td>
+                    @(string.IsNullOrEmpty(sale.CustomerInfo)
+                        ? "Walk-in Customer"
+                        : sale.CustomerInfo)
+                </td>
+
+                <td>
+                    @sale.TotalAmount.ToString("0.00")
+                </td>
+
+                <td>
+                    @sale.SaleItems.Count
+                </td>
+
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@sale.SaleID"
+                       class="btn btn-info btn-sm">
+                        Details
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

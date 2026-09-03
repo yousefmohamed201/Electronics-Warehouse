@@ -1,214 +1,125 @@
-## Products & Categories Implementation
+# Electronics Warehouse Management System
+
+🎓 **Graduation Project**
+
+Electronics Warehouse Management System is a web-based graduation project developed as part of the .NET track at ITI (Information Technology Institute) – Menoufia.
+
+The system is designed to manage and organize the operations of an electronics warehouse, including products, inventory, suppliers, purchases, customers, orders, and warehouse activities.
+
+---
+
+## 🎯 Project Objectives
+
+- Manage electronic products and categories.
+- Track inventory and stock levels.
+- Manage warehouses and product locations.
+- Manage suppliers and purchasing operations.
+- Manage customers and orders.
+- Track product serial numbers.
+- Handle returns and warranty information.
+- Provide reports and statistics.
+- Implement authentication and role-based authorization.
+- Build a maintainable and scalable .NET-based system.
+
+---
+
+## 👥 Team
+
+| Member | Branch |
+| --- | --- |
+| Yousef | `yousef` |
+| Almaghraby | `almaghraby` |
+| Ibrahim | `ibrahim` |
+| Tayel | `tayel` |
+| Mohamed | `mohamed` |
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend & Core
+- ASP.NET Core MVC & Web API
+- Entity Framework Core
+- C#
+- SQL Server
+- ASP.NET Core Identity
+
+### Frontend
+- Razor Views
+- Bootstrap 5
+- Bootstrap Icons
+
+### Development Tools
+- Visual Studio
+- Git & GitHub
+
+---
+
+## 🌿 Branching Strategy
+
+The `main` branch represents the stable version of the project.
+Each team member has a dedicated branch for development:
+
+```
+main
+├── yousef
+├── almaghraby
+├── ibrahim
+├── tayel
+└── mohamed
+```
+
+---
+
+## 📦 Products & Categories Implementation (Mohamed)
 
 ### Overview
-
 This implementation completes the foundation and CRUD functionality for the **Categories** and **Products** modules in the Electronics Warehouse project.
 
-The implementation focuses on data validation, relationship safety, user-friendly error handling, and improvements to the user interface.
+---
+
+### Phase 1 – Data Models & Validation
+
+#### Category Model (`Category.cs`)
+- Added `[Required]`, `[StringLength(100)]`, and `[Display]` data annotations.
+- Added `[ValidateNever]` to navigation properties (`Products`) to prevent MVC binding validation errors.
+
+#### Product Model (`Product.cs`)
+- Added `[Required]`, `[StringLength]`, `[Range]`, `[Column]`, and `[Display]` data annotations.
+- Added `[ValidateNever]` to navigation properties (`Category`, `PurchaseItems`, `SaleItems`).
 
 ---
 
-# Phase 1 – Data Models & Validation
+### Phase 2 – Categories CRUD (`CategoriesController`)
 
-## Category Model
-
-The `Category` model was enhanced with validation attributes to improve data integrity and user input validation.
-
-### Changes
-
-* Added `[Required]` validation for required fields.
-* Added `[StringLength]` restrictions.
-* Added `[Display]` attributes for user-friendly field names.
-* Updated navigation properties to prevent unnecessary validation during form submissions.
-* Added protection against navigation property model binding errors.
+#### Implemented Features
+- Display the number of products associated with each category on Index and Details pages.
+- Prevent duplicate category names during creation and editing.
+- Deletion Guard: Prevent deleting categories with linked products, displaying warning alerts.
 
 ---
 
-## Product Model
+### Phase 2 – Products CRUD (`ProductsController`)
 
-The `Product` model was enhanced with validation and relationship safety checks.
-
-### Changes
-
-* Added `[Required]` validation.
-* Added `[StringLength]` restrictions.
-* Added `[Range]` validation for numeric values.
-* Added `[Column]` attributes where required.
-* Added `[Display]` attributes for better UI labels.
-* Updated navigation properties:
-
-  * `Category`
-  * `PurchaseItems`
-  * `SaleItems`
-* Prevented navigation property validation issues during POST requests.
+#### Implemented Features
+- Added SKU uniqueness validation on Create and Edit actions.
+- Included Category details in Index, Details, and Delete views.
+- Deletion Guard: Prevent deleting products linked to purchase or sale history.
+- Added low-stock alert badges (`StockQuantity <= LowStockThreshold`).
 
 ---
 
-# Phase 2 – Categories CRUD
-
-## CategoriesController
-
-The Categories module was enhanced with additional validation and relationship checks.
-
-### Implemented Features
-
-* Display the number of products associated with each category.
-* Display products associated with a category in the Details page.
-* Prevent duplicate category names during creation.
-* Prevent duplicate category names during editing.
-* Prevent deletion of categories that contain products.
-* Display user-friendly error messages instead of database constraint exceptions.
-
-### Category Delete Protection
-
-A category cannot be deleted if products are currently associated with it.
-
-This prevents foreign key constraint errors and protects database integrity.
+### User Interface & Navigation
+- Enhanced Views (`Index`, `Create`, `Edit`, `Details`, `Delete`) for both Categories and Products with modern Bootstrap cards, icons, and alerts.
+- Updated `Shared/_Layout.cshtml` header navbar with direct navigation links.
 
 ---
 
-# Phase 2 – Products CRUD
-
-## ProductsController
-
-The Products module includes validation, relationship handling, and safety checks.
-
-### Implemented Features
-
-* Added SKU uniqueness validation.
-* Prevent duplicate SKU values during product creation.
-* Prevent duplicate SKU values during product editing.
-* Added `ModelState.AddModelError` for validation feedback.
-* Included Category information in:
-
-  * Product Index
-  * Product Details
-  * Product Delete pages
-* Prevent deletion of products associated with purchases.
-* Prevent deletion of products associated with sales.
-* Added user-friendly error messages when deletion is not allowed.
-
----
-
-# User Interface Improvements
-
-## Categories Views
-
-Updated the following views:
-
-* `Index.cshtml`
-* `Create.cshtml`
-* `Edit.cshtml`
-* `Details.cshtml`
-* `Delete.cshtml`
-
-### Improvements
-
-* Added product count display.
-* Added validation messages.
-* Added alert messages for successful and failed operations.
-* Improved form styling.
-* Added product lists to category details.
-* Added delete confirmation warnings.
-* Improved action buttons.
-
----
-
-## Products Views
-
-Updated the following views:
-
-* `Index.cshtml`
-* `Create.cshtml`
-* `Edit.cshtml`
-* `Details.cshtml`
-* `Delete.cshtml`
-
-### Improvements
-
-* Added low stock status indicators.
-* Added stock badges.
-* Improved currency formatting.
-* Improved table styling.
-* Added category selection dropdowns.
-* Added validation scripts.
-* Added field placeholders.
-* Improved product details layout.
-* Added delete confirmation prompts.
-
----
-
-# Navigation
-
-Updated `Shared/_Layout.cshtml` to ensure easy navigation between:
-
-* Categories
-* Products
-
----
-
-# Data Integrity & Safety
-
-The implementation includes protection against common database and validation issues.
-
-### Protected Scenarios
-
-* Duplicate Category Names
-* Duplicate Product SKU values
-* Deleting Categories with linked Products
-* Deleting Products with linked Purchase records
-* Deleting Products with linked Sale records
-* Invalid user input
-* Navigation property validation errors
-
----
-
-# Verification
-
-## Build Verification
-
-The project should be verified using:
+## 🚀 Build & Verification
 
 ```bash
 dotnet build
 ```
 
-Expected result:
+- **0 Errors**, **0 Warnings** related to Categories and Products CRUD.
 
-* 0 Errors
-* 0 Warnings
-
----
-
-## Manual Testing
-
-### Categories
-
-* Create a new category.
-* View categories in the Index page.
-* View category details.
-* Edit category information.
-* Verify duplicate category validation.
-* Attempt to delete a category with products.
-* Delete an empty category.
-
-### Products
-
-* Create a product with a category assignment.
-* Verify SKU uniqueness validation.
-* Edit product information.
-* View product details.
-* Verify low stock indicators.
-* Attempt to delete a product linked to purchases or sales.
-* Delete an unlinked product successfully.
-
----
-
-## Technologies
-
-* ASP.NET Core MVC
-* Entity Framework Core
-* SQL Server
-* Razor Views
-* Bootstrap
-* Data Annotations

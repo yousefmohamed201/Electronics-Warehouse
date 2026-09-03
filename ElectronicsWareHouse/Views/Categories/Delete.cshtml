@@ -1,0 +1,55 @@
+@model ElectronicsWareHouse.Models.Category
+
+@{
+    ViewData["Title"] = "Delete Category";
+    bool hasProducts = Model.Products != null && Model.Products.Any();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Category Confirmation</h4>
+            </div>
+            <div class="card-body">
+                @if (hasProducts)
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-octagon me-2"></i>
+                        <strong>Warning:</strong> This category contains <strong>@Model.Products!.Count product(s)</strong>. You cannot delete it until those products are reassigned or removed.
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        Are you sure you want to permanently delete this category?
+                    </div>
+                }
+
+                <dl class="row mt-3">
+                    <dt class="col-sm-4">Category ID:</dt>
+                    <dd class="col-sm-8"><span class="badge bg-secondary">#@Model.CategoryID</span></dd>
+
+                    <dt class="col-sm-4">Category Name:</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Description:</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    <input type="hidden" asp-for="CategoryID" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger" @(hasProducts ? "disabled" : "")>
+                            <i class="bi bi-trash me-1"></i> Confirm Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

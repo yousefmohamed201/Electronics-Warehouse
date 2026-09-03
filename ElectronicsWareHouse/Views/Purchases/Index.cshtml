@@ -1,0 +1,70 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<ElectronicsWareHouse.Models.Purchase>
+
+@{
+    ViewData["Title"] = "Purchases";
+}
+
+<h1>Purchases</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        New Purchase
+    </a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Supplier</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var purchase in Model)
+        {
+            <tr>
+                <td>@purchase.PurchaseID</td>
+
+                <td>
+                    @purchase.Supplier.SupplierName
+                </td>
+
+                <td>
+                    @purchase.PurchaseDate.ToString("yyyy-MM-dd HH:mm")
+                </td>
+
+                <td>
+                    @purchase.TotalAmount.ToString("0.00")
+                </td>
+
+                <td>
+                    @purchase.PurchaseItems.Count
+                </td>
+
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@purchase.PurchaseID"
+                       class="btn btn-info btn-sm">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@purchase.PurchaseID"
+                       class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
