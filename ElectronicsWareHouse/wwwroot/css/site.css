@@ -29,3 +29,31 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* =========================
+   ElectronicsWareHouse Layout
+   ========================= */
+
+.sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+    .sidebar .nav-link {
+        color: #343a40;
+        border-radius: 6px;
+        padding: 10px 12px;
+    }
+
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+.main-content {
+    min-height: calc(100vh - 56px);
+    background-color: #ffffff;
+}
+
+footer {
+    background-color: #f8f9fa;
+}

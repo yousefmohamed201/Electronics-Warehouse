@@ -1,0 +1,84 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<ElectronicsWareHouse.Models.Product>
+
+@{
+    ViewData["Title"] = "Low Stock Products";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Low Stock Products</h2>
+            <p class="text-muted">
+                Products that need restocking
+            </p>
+        </div>
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back to Products
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-success">
+            All products have sufficient stock.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Low Stock Threshold</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@product.ProductName</td>
+
+                            <td>@product.SKU</td>
+
+                            <td>
+                                @product.Category?.CategoryName
+                            </td>
+
+                            <td>
+                                <strong>@product.StockQuantity</strong>
+                            </td>
+
+                            <td>
+                                @product.LowStockThreshold
+                            </td>
+
+                            <td>
+                                <span class="badge bg-danger">
+                                    Low Stock
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+</div>

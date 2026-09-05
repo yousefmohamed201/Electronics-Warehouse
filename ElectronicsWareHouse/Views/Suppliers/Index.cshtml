@@ -1,9 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model IEnumerable<ElectronicsWareHouse.Models.Supplier>
+﻿@model IEnumerable<ElectronicsWareHouse.Models.Supplier>
 
 @{
     ViewData["Title"] = "Suppliers";
@@ -17,7 +12,7 @@
     </a>
 </p>
 
-<table class="table table-bordered">
+<table class="table table-dark table-hover">
     <thead>
         <tr>
             <th>ID</th>
@@ -26,6 +21,7 @@
             <th>Phone</th>
             <th>Email</th>
             <th>Address</th>
+            <th>Products</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -35,11 +31,26 @@
         {
             <tr>
                 <td>@supplier.SupplierID</td>
-                <td>@supplier.SupplierName</td>
+
+                <td>
+                    @supplier.SupplierName
+                </td>
+
                 <td>@supplier.ContactName</td>
+
                 <td>@supplier.Phone</td>
+
                 <td>@supplier.Email</td>
+
                 <td>@supplier.Address</td>
+
+                <td>
+                    <a asp-action="Products"
+                       asp-route-id="@supplier.SupplierID"
+                       class="btn btn-info btn-sm">
+                        View Products
+                    </a>
+                </td>
 
                 <td>
                     <a asp-action="Edit"
@@ -50,7 +61,7 @@
 
                     <a asp-action="Details"
                        asp-route-id="@supplier.SupplierID"
-                       class="btn btn-info btn-sm">
+                       class="btn btn-primary btn-sm">
                         Details
                     </a>
 

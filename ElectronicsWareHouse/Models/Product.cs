@@ -17,8 +17,7 @@
         public int LowStockThreshold { get; set; }
 
         // Relationship with Category
-        public Category Category { get; set; } = null!;
-
+        public Category? Category { get; set; }
         // Relationship with PurchaseItems
         public ICollection<PurchaseItem> PurchaseItems { get; set; }
             = new List<PurchaseItem>();

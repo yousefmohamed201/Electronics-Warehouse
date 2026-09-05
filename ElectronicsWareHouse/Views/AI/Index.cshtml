@@ -1,0 +1,95 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ElectronicsWareHouse.ViewModels.AIViewModel
+
+@{
+    ViewData["Title"] = "AI Assistant";
+}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>🤖 AI Inventory Assistant</h2>
+
+        <p class="text-muted">
+            Ask Gemini about your inventory, stock levels, and sales.
+        </p>
+    </div>
+
+
+    <!-- AI Question -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h4 class="mb-3">
+                Ask the AI
+            </h4>
+
+            <form asp-action="Index" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+
+                    <label asp-for="Question"
+                           class="form-label">
+                        Your Question
+                    </label>
+
+                    <textarea asp-for="Question"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Ask anything about your inventory..."></textarea>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    🤖 Ask Gemini
+
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- Error -->
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">
+            @Model.Error
+        </div>
+    }
+
+
+    <!-- AI Answer -->
+    @if (!string.IsNullOrWhiteSpace(Model.Answer))
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h4 class="mb-3">
+                    🤖 Gemini Response
+                </h4>
+
+                <div class="alert alert-info mb-0"
+                     style="white-space: pre-wrap;">
+
+                    @Model.Answer
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

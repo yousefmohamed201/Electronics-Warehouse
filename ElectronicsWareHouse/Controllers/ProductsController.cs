@@ -16,11 +16,88 @@ namespace ElectronicsWareHouse.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        // GET: Products
+        public async Task<IActionResult> Index(
+    string? search,
+    int? categoryId,
+    string? status,
+    int page = 1)
         {
-            var products = await _context.Products
+            int pageSize = 10;
+
+            if (page < 1)
+                page = 1;
+
+            var query = _context.Products
                 .Include(p => p.Category)
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                query = query.Where(p =>
+                    p.ProductName.Contains(search) ||
+                    p.SKU.Contains(search));
+            }
+
+            // Category Filter
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p =>
+                    p.CategoryID == categoryId.Value);
+            }
+
+            // Status Filter
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status == "InStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity > p.LowStockThreshold);
+                }
+                else if (status == "LowStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity <= p.LowStockThreshold);
+                }
+                else if (status == "OutOfStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity == 0);
+                }
+            }
+
+            int totalProducts = await query.CountAsync();
+
+            int totalPages = (int)Math.Ceiling(
+                totalProducts / (double)pageSize);
+
+            if (totalPages > 0 && page > totalPages)
+                page = totalPages;
+
+            var products = await query
+                .OrderBy(p => p.ProductName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            var categories = await _context.Categories
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync();
+
+            ViewBag.Categories = new SelectList(
+                categories,
+                "CategoryID",
+                "CategoryName",
+                categoryId);
+
+            ViewBag.Search = search;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.Status = status;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
 
             return View(products);
         }
@@ -144,6 +221,16 @@ namespace ElectronicsWareHouse.Controllers
                 "CategoryID",
                 "CategoryName",
                 selectedCategory);
+        }
+        public async Task<IActionResult> LowStock()
+        {
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity <= p.LowStockThreshold)
+                .OrderBy(p => p.StockQuantity)
+                .ToListAsync();
+
+            return View(products);
         }
     }
 }

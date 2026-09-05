@@ -12,8 +12,8 @@
 
         public decimal UnitCost { get; set; }
 
-        public Purchase Purchase { get; set; } = null!;
+        public Purchase? Purchase { get; set; }
 
-        public Product Product { get; set; } = null!;
+        public Product? Product { get; set; }
     }
 }

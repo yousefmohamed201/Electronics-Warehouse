@@ -1,0 +1,669 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+
+    var recentSales =
+        ViewBag.RecentSales as IEnumerable<ElectronicsWareHouse.Models.Sale>
+        ?? Enumerable.Empty<ElectronicsWareHouse.Models.Sale>();
+
+    var recentPurchases =
+        ViewBag.RecentPurchases as IEnumerable<ElectronicsWareHouse.Models.Purchase>
+        ?? Enumerable.Empty<ElectronicsWareHouse.Models.Purchase>();
+
+    var mostSoldProducts = ViewBag.MostSoldProducts as IEnumerable<dynamic>
+        ?? Enumerable.Empty<dynamic>();
+}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>Dashboard</h2>
+        <p class="text-muted">
+            Electronics warehouse overview
+        </p>
+    </div>
+
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+
+        <!-- Products -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Products</p>
+                    <h2>@ViewBag.TotalProducts</h2>
+
+                    <a asp-controller="Products"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Products
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Categories -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Categories</p>
+                    <h2>@ViewBag.TotalCategories</h2>
+
+                    <a asp-controller="Categories"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Suppliers -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Suppliers</p>
+                    <h2>@ViewBag.TotalSuppliers</h2>
+
+                    <a asp-controller="Suppliers"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Suppliers
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Total Stock -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Stock Quantity</p>
+
+                    <h2>
+                        @ViewBag.TotalStockQuantity
+                    </h2>
+
+                    <a asp-controller="Products"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Stock
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Second Statistics Row -->
+    <div class="row g-4 mb-4">
+
+        <!-- Low Stock -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Low Stock
+                    </p>
+
+                    <h2 class="text-danger">
+                        @ViewBag.LowStockCount
+                    </h2>
+
+                    <a asp-controller="Products"
+                       asp-action="LowStock"
+                       class="btn btn-sm btn-outline-danger">
+                        View Alerts
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Sales Count -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Sales Transactions
+                    </p>
+
+                    <h2>
+                        @ViewBag.TotalSales
+                    </h2>
+
+                    <a asp-controller="Sales"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Sales
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Purchase Count -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Purchase Transactions
+                    </p>
+
+                    <h2>
+                        @ViewBag.TotalPurchases
+                    </h2>
+
+                    <a asp-controller="Purchases"
+                       asp-action="Index"
+                       class="btn btn-sm btn-outline-primary">
+                        View Purchases
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Financial Cards -->
+    <div class="row g-4 mb-4">
+
+        <!-- Sales -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Total Sales Revenue
+                    </p>
+
+                    <h3>
+                        @ViewBag.SalesAmount.ToString("N2") EGP
+                    </h3>
+
+                    <small class="text-muted">
+                        @ViewBag.TotalSales sales transaction(s)
+                    </small>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Purchases -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Total Purchases Value
+                    </p>
+
+                    <h3>
+                        @ViewBag.PurchasesAmount.ToString("N2") EGP
+                    </h3>
+
+                    <small class="text-muted">
+                        @ViewBag.TotalPurchases purchase transaction(s)
+                    </small>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Recent Sales -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+                    <h4 class="mb-1">
+                        Recent Sales
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Latest sales transactions
+                    </p>
+                </div>
+
+                <a asp-controller="Sales"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    View All Sales
+                </a>
+
+            </div>
+
+
+            @if (!recentSales.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    No sales transactions yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Sale ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var sale in recentSales)
+                            {
+                                <tr>
+
+                                    <td>
+                                        #@sale.SaleID
+                                    </td>
+
+                                    <td>
+                                        @sale.SaleDate.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(sale.CustomerInfo)
+                                            ? "Walk-in Customer"
+                                            : sale.CustomerInfo)
+                                    </td>
+
+                                    <td>
+                                        @sale.TotalAmount.ToString("N2") EGP
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="Sales"
+                                           asp-action="Details"
+                                           asp-route-id="@sale.SaleID"
+                                           class="btn btn-sm btn-info">
+                                            Details
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- Recent Purchases -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+                    <h4 class="mb-1">
+                        Recent Purchases
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Latest incoming stock purchases
+                    </p>
+                </div>
+
+                <a asp-controller="Purchases"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    View All Purchases
+                </a>
+
+            </div>
+
+
+            @if (!recentPurchases.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    No purchase transactions yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Purchase ID</th>
+                                <th>Date</th>
+                                <th>Supplier</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var purchase in recentPurchases)
+                            {
+                                <tr>
+
+                                    <td>
+                                        #@purchase.PurchaseID
+                                    </td>
+
+                                    <td>
+                                        @purchase.PurchaseDate.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+
+                                    <td>
+                                        @purchase.Supplier?.SupplierName
+                                    </td>
+
+                                    <td>
+                                        @purchase.TotalAmount.ToString("N2") EGP
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="Purchases"
+                                           asp-action="Details"
+                                           asp-route-id="@purchase.PurchaseID"
+                                           class="btn btn-sm btn-info">
+                                            Details
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- Most Sold Products -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="mb-3">
+                <h4 class="mb-1">
+                    Most Sold Products
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Top products ranked by quantity sold and revenue
+                </p>
+            </div>
+
+
+            @if (!mostSoldProducts.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    No sales data yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>SKU</th>
+                                <th>Product</th>
+                                <th>Quantity Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int rank = 1;
+                            }
+
+                            @foreach (var product in mostSoldProducts)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <strong>#@rank</strong>
+                                    </td>
+
+                                    <td>
+                                        @product.SKU
+                                    </td>
+
+                                    <td>
+                                        @product.ProductName
+                                    </td>
+
+                                    <td>
+                                        @product.QuantitySold
+                                    </td>
+
+                                    <td>
+                                        @product.Revenue.ToString("N2") EGP
+                                    </td>
+
+                                </tr>
+
+                                rank++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+
+        <!-- Sales Chart -->
+        <div class="col-md-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h4 class="mb-1">
+                        Sales Performance
+                    </h4>
+
+                    <p class="text-muted">
+                        Sales revenue by date
+                    </p>
+
+                    <div style="height: 300px;">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Purchases Chart -->
+        <div class="col-md-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h4 class="mb-1">
+                        Purchase Performance
+                    </h4>
+
+                    <p class="text-muted">
+                        Purchase value by date
+                    </p>
+
+                    <div style="height: 300px;">
+                        <canvas id="purchaseChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // =========================
+    // SALES CHART
+    // =========================
+
+    const salesLabels = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                ViewBag.SalesChartLabels
+                )
+                );
+
+    const salesData = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                ViewBag.SalesChartData
+                )
+                );
+
+
+    new Chart(document.getElementById('salesChart'), {
+
+        type: 'line',
+
+        data: {
+            labels: salesLabels,
+
+            datasets: [{
+                label: 'Sales Revenue (EGP)',
+                data: salesData,
+
+                borderWidth: 2,
+
+                tension: 0.3,
+
+                fill: false
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+
+        }
+
+    });
+
+
+    // =========================
+    // PURCHASE CHART
+    // =========================
+
+    const purchaseLabels = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                ViewBag.PurchaseChartLabels
+                )
+                );
+
+    const purchaseData = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                ViewBag.PurchaseChartData
+                )
+                );
+
+
+    new Chart(document.getElementById('purchaseChart'), {
+
+        type: 'bar',
+
+        data: {
+            labels: purchaseLabels,
+
+            datasets: [{
+                label: 'Purchase Value (EGP)',
+                data: purchaseData,
+
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+
+        }
+
+    });
+
+</script>

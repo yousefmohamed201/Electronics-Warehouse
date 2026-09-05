@@ -109,5 +109,32 @@ namespace ElectronicsWareHouse.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> Products(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var supplier = await _context.Suppliers
+                .Include(s => s.Purchases)
+                .ThenInclude(p => p.PurchaseItems)
+                .ThenInclude(pi => pi.Product)
+                .FirstOrDefaultAsync(s => s.SupplierID == id);
+
+            if (supplier == null)
+                return NotFound();
+
+            var products = supplier.Purchases
+                .SelectMany(p => p.PurchaseItems)
+                .Where(pi => pi.Product != null)
+                .Select(pi => pi.Product!)
+                .GroupBy(p => p.ProductID)
+                .Select(g => g.First())
+                .OrderBy(p => p.ProductName)
+                .ToList();
+
+            ViewBag.SupplierName = supplier.SupplierName;
+
+            return View(products);
+        }
     }
 }

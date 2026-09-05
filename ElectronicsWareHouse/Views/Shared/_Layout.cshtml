@@ -3,48 +3,267 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - ElectronicsWareHouse</title>
-    <script type="importmap"></script>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ElectronicsWareHouse.styles.css" asp-append-version="true" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 </head>
+
 <body>
+
+    <!-- Navbar -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ElectronicsWareHouse</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold"
+                   asp-area=""
+                   asp-controller="Dashboard"
+                   asp-action="Index">
+                    <i class="bi bi-cpu"></i>
+                    ElectronicsWareHouse
+                </a>
+
+                <!-- Mobile Button -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <!-- Navbar Links -->
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <ul class="navbar-nav ms-auto">
+
+                        <!-- Home -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                <i class="bi bi-house"></i>
+                                Home
+                            </a>
                         </li>
+
+                        <!-- Dashboard -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
                         </li>
+
                     </ul>
+
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+
+    <!-- Main Application Area -->
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <!-- Sidebar -->
+            <aside class="col-md-3 col-lg-2 sidebar">
+
+                <div class="p-3">
+
+                    <!-- Management -->
+                    <h6 class="text-uppercase text-muted mb-3">
+                        Management
+                    </h6>
+
+                    <ul class="nav nav-pills flex-column gap-1">
+
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+
+                            </a>
+                        </li>
+
+
+                        <!-- Categories -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Categories"
+                               asp-action="Index">
+
+                                <i class="bi bi-tags"></i>
+                                Categories
+
+                            </a>
+                        </li>
+
+
+                        <!-- Products -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Products"
+                               asp-action="Index">
+
+                                <i class="bi bi-box-seam"></i>
+                                Products
+
+                            </a>
+                        </li>
+
+
+                        <!-- Suppliers -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Suppliers"
+                               asp-action="Index">
+
+                                <i class="bi bi-truck"></i>
+                                Suppliers
+
+                            </a>
+                        </li>
+
+
+                        <!-- Purchases -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Purchases"
+                               asp-action="Index">
+
+                                <i class="bi bi-cart-plus"></i>
+                                Purchases
+
+                            </a>
+                        </li>
+
+
+                        <!-- Sales -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Sales"
+                               asp-action="Index">
+
+                                <i class="bi bi-cart-check"></i>
+                                Sales
+
+                            </a>
+                        </li>
+
+                    </ul>
+
+
+                    <hr />
+
+
+                    <!-- System -->
+                    <h6 class="text-uppercase text-muted mb-3">
+                        System
+                    </h6>
+
+                    <ul class="nav nav-pills flex-column gap-1">
+
+                        <!-- Low Stock -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Products"
+                               asp-action="LowStock">
+
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Low Stock
+
+                            </a>
+                        </li>
+
+
+                        <!-- Notifications -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Notifications"
+                               asp-action="Index">
+
+                                <i class="bi bi-bell"></i>
+                                Notifications
+
+                            </a>
+                        </li>
+
+
+                        <!-- AI Assistant -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="AI"
+                               asp-action="Index">
+
+                                <i class="bi bi-robot"></i>
+                                AI Assistant
+
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </aside>
+
+
+            <!-- Page Content -->
+            <main class="col-md-9 col-lg-10 main-content">
+
+                <div class="container-fluid py-4">
+
+                    @RenderBody()
+
+                </div>
+
+            </main>
+
+        </div>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ElectronicsWareHouse - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+
+    <!-- Footer -->
+    <footer class="border-top text-muted py-3">
+
+        <div class="container text-center">
+
+            &copy; 2026 - ElectronicsWareHouse
+
         </div>
+
     </footer>
+
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

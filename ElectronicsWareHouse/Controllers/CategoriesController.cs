@@ -117,5 +117,19 @@ namespace ElectronicsWareHouse.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> Products(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var category = await _context.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.CategoryID == id);
+
+            if (category == null)
+                return NotFound();
+
+            return View(category);
+        }
     }
 }

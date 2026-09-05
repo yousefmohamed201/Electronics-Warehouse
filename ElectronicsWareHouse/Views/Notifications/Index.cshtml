@@ -1,0 +1,110 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<ElectronicsWareHouse.Models.Product>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2>Notifications</h2>
+        <p class="text-muted">
+            Warehouse alerts and stock notifications
+        </p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i>
+            No notifications. All products have sufficient stock.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            You have <strong>@Model.Count()</strong> low stock notification(s).
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>SKU</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Threshold</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var product in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <strong>@product.ProductName</strong>
+                                    </td>
+
+                                    <td>
+                                        @product.SKU
+                                    </td>
+
+                                    <td>
+                                        @(product.Category?.CategoryName ?? "N/A")
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            @product.StockQuantity
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @product.LowStockThreshold
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            Low Stock
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="Products"
+                                           asp-action="Edit"
+                                           asp-route-id="@product.ProductID"
+                                           class="btn btn-sm btn-primary">
+                                            Restock
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>
