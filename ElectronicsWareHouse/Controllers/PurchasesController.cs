@@ -16,13 +16,54 @@ namespace ElectronicsWareHouse.Controllers
         }
 
         // GET: Purchases
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? supplierSearch,
+            DateTime? fromDate,
+            DateTime? toDate,
+            int page = 1)
         {
-            var purchases = await _context.Purchases
+            const int pageSize = 10;
+
+            var query = _context.Purchases
                 .Include(p => p.Supplier)
                 .Include(p => p.PurchaseItems)
-                .OrderByDescending(p => p.PurchaseDate)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(supplierSearch))
+            {
+                query = query.Where(p =>
+                    p.Supplier.SupplierName.Contains(supplierSearch));
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.PurchaseDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                // Include the whole "to" day
+                var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(p => p.PurchaseDate <= endOfDay);
+            }
+
+            query = query.OrderByDescending(p => p.PurchaseDate);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            if (page < 1) page = 1;
+
+            var purchases = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            ViewBag.SupplierSearch = supplierSearch;
+            ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
 
             return View(purchases);
         }

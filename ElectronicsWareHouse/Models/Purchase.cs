@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ElectronicsWareHouse.Models
 {
@@ -13,8 +14,10 @@ namespace ElectronicsWareHouse.Models
 
         public decimal TotalAmount { get; set; }
 
+        [ValidateNever]
         public Supplier Supplier { get; set; } = null!;
 
+        [ValidateNever]
         public ICollection<PurchaseItem> PurchaseItems { get; set; }
             = new List<PurchaseItem>();
     }

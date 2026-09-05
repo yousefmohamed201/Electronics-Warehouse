@@ -1,4 +1,6 @@
-﻿namespace ElectronicsWareHouse.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace ElectronicsWareHouse.Models
 {
     public class Product
     {
@@ -17,13 +19,16 @@
         public int LowStockThreshold { get; set; }
 
         // Relationship with Category
+        [ValidateNever]
         public Category Category { get; set; } = null!;
 
         // Relationship with PurchaseItems
+        [ValidateNever]
         public ICollection<PurchaseItem> PurchaseItems { get; set; }
             = new List<PurchaseItem>();
 
         // Relationship with SaleItems
+        [ValidateNever]
         public ICollection<SaleItem> SaleItems { get; set; }
             = new List<SaleItem>();
     }

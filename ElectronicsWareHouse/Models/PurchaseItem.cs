@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ElectronicsWareHouse.Models
 {
@@ -17,8 +18,10 @@ namespace ElectronicsWareHouse.Models
         [Range(0, double.MaxValue, ErrorMessage = "Unit cost cannot be negative.")]
         public decimal UnitCost { get; set; }
 
+        [ValidateNever]
         public Purchase Purchase { get; set; } = null!;
 
+        [ValidateNever]
         public Product Product { get; set; } = null!;
     }
 }

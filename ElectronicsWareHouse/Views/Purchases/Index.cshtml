@@ -17,6 +17,41 @@
     </a>
 </p>
 
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <label class="form-label">Supplier</label>
+        <input type="text"
+               name="supplierSearch"
+               value="@ViewBag.SupplierSearch"
+               class="form-control"
+               placeholder="Search by supplier name" />
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">From</label>
+        <input type="date"
+               name="fromDate"
+               value="@ViewBag.FromDate"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">To</label>
+        <input type="date"
+               name="toDate"
+               value="@ViewBag.ToDate"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-secondary w-100">
+            Filter
+        </button>
+    </div>
+
+</form>
+
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
@@ -68,3 +103,31 @@
         }
     </tbody>
 </table>
+
+@{
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-supplierSearch="@ViewBag.SupplierSearch"
+                       asp-route-fromDate="@ViewBag.FromDate"
+                       asp-route-toDate="@ViewBag.ToDate">
+                        @i
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </nav>
+}
