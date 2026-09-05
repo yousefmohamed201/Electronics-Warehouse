@@ -59,11 +59,16 @@ namespace ElectronicsWareHouse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             Purchase purchase,
-            List<PurchaseItem> items)
+            List<PurchaseItem>? items)
         {
             if (items == null || !items.Any())
             {
                 ModelState.AddModelError("", "Purchase must contain at least one product.");
+
+                await LoadSuppliers(purchase.SupplierID);
+                await LoadProducts();
+
+                return View(purchase);
             }
 
             if (!ModelState.IsValid)
