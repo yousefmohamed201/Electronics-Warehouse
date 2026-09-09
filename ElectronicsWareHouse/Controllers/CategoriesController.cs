@@ -1,4 +1,4 @@
-using ElectronicsWareHouse.Data;
+﻿using ElectronicsWareHouse.Data;
 using ElectronicsWareHouse.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +17,7 @@ namespace ElectronicsWareHouse.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categories
-                .Include(c => c.Products)
-                .AsNoTracking()
-                .ToListAsync();
-
+            var categories = await _context.Categories.ToListAsync();
             return View(categories);
         }
 
@@ -32,8 +28,6 @@ namespace ElectronicsWareHouse.Controllers
                 return NotFound();
 
             var category = await _context.Categories
-                .Include(c => c.Products)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CategoryID == id);
 
             if (category == null)
@@ -53,19 +47,12 @@ namespace ElectronicsWareHouse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
         {
-            if (await _context.Categories.AnyAsync(c => c.CategoryName.ToLower() == category.CategoryName.Trim().ToLower()))
-            {
-                ModelState.AddModelError("CategoryName", "A category with this name already exists.");
-            }
-
             if (!ModelState.IsValid)
                 return View(category);
 
-            category.CategoryName = category.CategoryName.Trim();
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Category created successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -91,28 +78,11 @@ namespace ElectronicsWareHouse.Controllers
             if (id != category.CategoryID)
                 return NotFound();
 
-            if (await _context.Categories.AnyAsync(c => c.CategoryID != id && c.CategoryName.ToLower() == category.CategoryName.Trim().ToLower()))
-            {
-                ModelState.AddModelError("CategoryName", "Another category with this name already exists.");
-            }
-
             if (!ModelState.IsValid)
                 return View(category);
 
-            try
-            {
-                category.CategoryName = category.CategoryName.Trim();
-                _context.Categories.Update(category);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Category updated successfully!";
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Categories.Any(c => c.CategoryID == category.CategoryID))
-                    return NotFound();
-                else
-                    throw;
-            }
+            _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -124,8 +94,6 @@ namespace ElectronicsWareHouse.Controllers
                 return NotFound();
 
             var category = await _context.Categories
-                .Include(c => c.Products)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CategoryID == id);
 
             if (category == null)
@@ -139,6 +107,21 @@ namespace ElectronicsWareHouse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null)
+                return NotFound();
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+        public async Task<IActionResult> Products(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
             var category = await _context.Categories
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.CategoryID == id);
@@ -146,17 +129,7 @@ namespace ElectronicsWareHouse.Controllers
             if (category == null)
                 return NotFound();
 
-            if (category.Products.Any())
-            {
-                TempData["ErrorMessage"] = $"Cannot delete category '{category.CategoryName}' because it has {category.Products.Count} associated product(s). Please reassign or delete those products first.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Category deleted successfully!";
-            return RedirectToAction(nameof(Index));
+            return View(category);
         }
     }
 }

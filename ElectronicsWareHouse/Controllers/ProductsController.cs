@@ -1,4 +1,4 @@
-using ElectronicsWareHouse.Data;
+﻿using ElectronicsWareHouse.Data;
 using ElectronicsWareHouse.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,13 +16,88 @@ namespace ElectronicsWareHouse.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        // GET: Products
+        public async Task<IActionResult> Index(
+    string? search,
+    int? categoryId,
+    string? status,
+    int page = 1)
         {
-            var products = await _context.Products
+            int pageSize = 10;
+
+            if (page < 1)
+                page = 1;
+
+            var query = _context.Products
                 .Include(p => p.Category)
-                .AsNoTracking()
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                query = query.Where(p =>
+                    p.ProductName.Contains(search) ||
+                    p.SKU.Contains(search));
+            }
+
+            // Category Filter
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p =>
+                    p.CategoryID == categoryId.Value);
+            }
+
+            // Status Filter
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status == "InStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity > p.LowStockThreshold);
+                }
+                else if (status == "LowStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity <= p.LowStockThreshold);
+                }
+                else if (status == "OutOfStock")
+                {
+                    query = query.Where(p =>
+                        p.StockQuantity == 0);
+                }
+            }
+
+            int totalProducts = await query.CountAsync();
+
+            int totalPages = (int)Math.Ceiling(
+                totalProducts / (double)pageSize);
+
+            if (totalPages > 0 && page > totalPages)
+                page = totalPages;
+
+            var products = await query
                 .OrderBy(p => p.ProductName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            var categories = await _context.Categories
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync();
+
+            ViewBag.Categories = new SelectList(
+                categories,
+                "CategoryID",
+                "CategoryName",
+                categoryId);
+
+            ViewBag.Search = search;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.Status = status;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
 
             return View(products);
         }
@@ -35,9 +110,6 @@ namespace ElectronicsWareHouse.Controllers
 
             var product = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.PurchaseItems)
-                .Include(p => p.SaleItems)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.ProductID == id);
 
             if (product == null)
@@ -58,24 +130,15 @@ namespace ElectronicsWareHouse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product)
         {
-            if (!string.IsNullOrWhiteSpace(product.SKU) &&
-                await _context.Products.AnyAsync(p => p.SKU.ToLower() == product.SKU.Trim().ToLower()))
-            {
-                ModelState.AddModelError("SKU", "A product with this SKU already exists.");
-            }
-
             if (!ModelState.IsValid)
             {
                 await LoadCategories(product.CategoryID);
                 return View(product);
             }
 
-            product.SKU = product.SKU.Trim().ToUpper();
-            product.ProductName = product.ProductName.Trim();
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Product created successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -103,33 +166,14 @@ namespace ElectronicsWareHouse.Controllers
             if (id != product.ProductID)
                 return NotFound();
 
-            if (!string.IsNullOrWhiteSpace(product.SKU) &&
-                await _context.Products.AnyAsync(p => p.ProductID != id && p.SKU.ToLower() == product.SKU.Trim().ToLower()))
-            {
-                ModelState.AddModelError("SKU", "Another product with this SKU already exists.");
-            }
-
             if (!ModelState.IsValid)
             {
                 await LoadCategories(product.CategoryID);
                 return View(product);
             }
 
-            try
-            {
-                product.SKU = product.SKU.Trim().ToUpper();
-                product.ProductName = product.ProductName.Trim();
-                _context.Products.Update(product);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Product updated successfully!";
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Products.Any(p => p.ProductID == product.ProductID))
-                    return NotFound();
-                else
-                    throw;
-            }
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -142,9 +186,6 @@ namespace ElectronicsWareHouse.Controllers
 
             var product = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.PurchaseItems)
-                .Include(p => p.SaleItems)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.ProductID == id);
 
             if (product == null)
@@ -158,24 +199,14 @@ namespace ElectronicsWareHouse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.PurchaseItems)
-                .Include(p => p.SaleItems)
-                .FirstOrDefaultAsync(p => p.ProductID == id);
+            var product = await _context.Products.FindAsync(id);
 
             if (product == null)
                 return NotFound();
 
-            if (product.PurchaseItems.Any() || product.SaleItems.Any())
-            {
-                TempData["ErrorMessage"] = $"Cannot delete product '{product.ProductName}' because it is linked to existing transactions (Purchases/Sales).";
-                return RedirectToAction(nameof(Index));
-            }
-
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Product deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -183,7 +214,6 @@ namespace ElectronicsWareHouse.Controllers
         {
             var categories = await _context.Categories
                 .OrderBy(c => c.CategoryName)
-                .AsNoTracking()
                 .ToListAsync();
 
             ViewBag.CategoryID = new SelectList(
@@ -191,6 +221,16 @@ namespace ElectronicsWareHouse.Controllers
                 "CategoryID",
                 "CategoryName",
                 selectedCategory);
+        }
+        public async Task<IActionResult> LowStock()
+        {
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity <= p.LowStockThreshold)
+                .OrderBy(p => p.StockQuantity)
+                .ToListAsync();
+
+            return View(products);
         }
     }
 }

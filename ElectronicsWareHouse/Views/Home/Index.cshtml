@@ -1,8 +1,170 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Operations Launchpad";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex flex-column gap-4">
+    <!-- Hero Launchpad Banner -->
+    <div class="ew-card border-0 p-4 p-md-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(16,185,129,0.06) 100%);">
+        <div class="row align-items-center g-4 position-relative" style="z-index: 1;">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="ew-badge ew-badge-primary">
+                        <i class="bi bi-box-seam me-1"></i>Warehouse OS v2.4
+                    </span>
+                    <span class="ew-badge ew-badge-success">
+                        <i class="bi bi-broadcast me-1"></i>Systems Operational
+                    </span>
+                </div>
+                <h1 class="display-6 fw-bold text-main mb-2">
+                    Electronics Warehouse Management System
+                </h1>
+                <p class="text-secondary text-base mb-4" style="max-width: 620px;">
+                    Enterprise centralized control for electronic hardware inventory, vendor procurement pipelines, high-velocity customer sales fulfillment, and AI-driven telemetry.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Dashboard" asp-action="Index" class="ew-btn ew-btn-primary">
+                        <i class="bi bi-speedometer2 me-1"></i>Launch Telemetry Dashboard
+                    </a>
+                    <a asp-controller="Sales" asp-action="Create" class="ew-btn ew-btn-secondary">
+                        <i class="bi bi-cart-check me-1"></i>New Sale
+                    </a>
+                    <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-secondary">
+                        <i class="bi bi-cart-plus me-1"></i>New Purchase Order
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <div class="p-4 rounded-4 bg-surface border shadow-sm d-inline-block text-center" style="max-width: 260px;">
+                    <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex mb-3">
+                        <i class="bi bi-cpu fs-1"></i>
+                    </div>
+                    <div class="fw-bold text-main">Central Inventory Unit</div>
+                    <div class="text-xs text-secondary mt-1">Direct Entity Framework Core connection with automated stock sync</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Module Launch Grid -->
+    <div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold text-main mb-0">Operational Modules</h5>
+            <span class="text-xs text-secondary">Quick Navigation</span>
+        </div>
+        <div class="row g-3">
+            <!-- Products Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="Products" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-boxes fs-4"></i>
+                            </div>
+                            <i class="bi bi-arrow-right text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Products Catalog</h6>
+                        <p class="text-secondary text-xs mb-0">Master catalog of electronic components, pricing tiers, and SKU specifications.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-primary fw-semibold">
+                        Browse Stock &rarr;
+                    </div>
+                </a>
+            </div>
+
+            <!-- Sales Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="Sales" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-receipt-cutoff fs-4"></i>
+                            </div>
+                            <i class="bi bi-arrow-right text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Sales & Point of Sale</h6>
+                        <p class="text-secondary text-xs mb-0">Customer transactions, automated stock deduction, invoice generation, and receivables.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-success fw-semibold">
+                        View Transactions &rarr;
+                    </div>
+                </a>
+            </div>
+
+            <!-- Purchases Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="Purchases" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-truck fs-4"></i>
+                            </div>
+                            <i class="bi bi-arrow-right text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Procurement & Purchases</h6>
+                        <p class="text-secondary text-xs mb-0">Vendor replenishment orders, goods receiving logs, and stock crediting workflows.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-warning fw-semibold">
+                        Manage Orders &rarr;
+                    </div>
+                </a>
+            </div>
+
+            <!-- Suppliers Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="Suppliers" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-info bg-opacity-10 text-info">
+                                <i class="bi bi-building fs-4"></i>
+                            </div>
+                            <i class="bi bi-arrow-right text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Supplier Partners</h6>
+                        <p class="text-secondary text-xs mb-0">Authorized vendor directories, procurement contacts, and supply contract management.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-info fw-semibold">
+                        Vendor Directory &rarr;
+                    </div>
+                </a>
+            </div>
+
+            <!-- Categories Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="Categories" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-secondary bg-opacity-10 text-secondary">
+                                <i class="bi bi-diagram-3 fs-4"></i>
+                            </div>
+                            <i class="bi bi-arrow-right text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Category Hierarchy</h6>
+                        <p class="text-secondary text-xs mb-0">Departmental taxonomies, product groupings, and catalogue organization.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-secondary fw-semibold">
+                        View Departments &rarr;
+                    </div>
+                </a>
+            </div>
+
+            <!-- Gemini AI Module -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-controller="AI" asp-action="Index" class="ew-card text-decoration-none h-100 p-4 d-flex flex-column justify-content-between hover-shadow border-primary-subtle">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="rounded-3 p-2 bg-primary text-white">
+                                <i class="bi bi-robot fs-4"></i>
+                            </div>
+                            <span class="ew-badge ew-badge-primary text-xs">AI Copilot</span>
+                        </div>
+                        <h6 class="fw-bold text-main mb-1">Gemini AI Assistant</h6>
+                        <p class="text-secondary text-xs mb-0">Natural language inventory analysis, stock depletion predictions, and recommendations.</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-top text-xs text-primary fw-semibold">
+                        Launch Assistant &rarr;
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

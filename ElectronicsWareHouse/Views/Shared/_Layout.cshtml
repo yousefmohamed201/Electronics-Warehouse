@@ -3,54 +3,300 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ElectronicsWareHouse</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Electronics Warehouse Management</title>
+
+    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Electronics Warehouse Enterprise Design System -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ElectronicsWareHouse.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand text-light fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-cpu-fill text-warning me-1"></i> ElectronicsWareHouse
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-1"></i> Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags me-1"></i> Categories</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Products" asp-action="Index"><i class="bi bi-box-seam me-1"></i> Products</a>
-                        </li>
-                    </ul>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    }
+
+    <!-- Toast Notification Mount Point -->
+    <div class="toast-container-custom" id="ewToastContainer"></div>
+
+    <!-- Hidden Flash Message Carrier for TempData -->
+    <div id="ewFlashMessages" 
+         data-success="@TempData["Success"]" 
+         data-error="@TempData["Error"]" 
+         data-warning="@TempData["Warning"]" 
+         style="display: none;"></div>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-wrapper">
+
+        <!-- ==========================================
+             ENTERPRISE LEFT SIDEBAR
+             ========================================== -->
+        <aside class="app-sidebar" id="appSidebar">
+            
+            <!-- Brand Header -->
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="bi bi-cpu-fill"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <span class="sidebar-brand-name">Electronics Ware</span>
+                    <span class="sidebar-brand-sub">Warehouse OS v2.0</span>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <!-- Navigation Links -->
+            <div class="sidebar-nav">
+
+                <!-- CORE SECTION -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Management</div>
+
+                    <!-- Dashboard -->
+                    <a class="nav-link-item @(currentController == "Dashboard" ? "active" : "")" 
+                       asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-grid-1x2-fill nav-icon"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+
+                    <!-- AI Copilot -->
+                    <a class="nav-link-item @(currentController == "AI" ? "active" : "")" 
+                       asp-controller="AI" asp-action="Index">
+                        <i class="bi bi-robot nav-icon"></i>
+                        <span class="nav-text">AI Copilot</span>
+                    </a>
+                </div>
+
+                <!-- INVENTORY SECTION -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Inventory & Catalog</div>
+
+                    <!-- Products -->
+                    <a class="nav-link-item @(currentController == "Products" && currentAction != "LowStock" ? "active" : "")" 
+                       asp-controller="Products" asp-action="Index">
+                        <i class="bi bi-box-seam-fill nav-icon"></i>
+                        <span class="nav-text">Products</span>
+                    </a>
+
+                    <!-- Categories -->
+                    <a class="nav-link-item @(currentController == "Categories" ? "active" : "")" 
+                       asp-controller="Categories" asp-action="Index">
+                        <i class="bi bi-tags-fill nav-icon"></i>
+                        <span class="nav-text">Categories</span>
+                    </a>
+
+                    <!-- Low Stock Alerts -->
+                    <a class="nav-link-item @(currentController == "Products" && currentAction == "LowStock" ? "active" : "")" 
+                       asp-controller="Products" asp-action="LowStock">
+                        <i class="bi bi-exclamation-triangle-fill nav-icon text-warning"></i>
+                        <span class="nav-text">Low Stock Alerts</span>
+                    </a>
+                </div>
+
+                <!-- OPERATIONS SECTION -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Operations</div>
+
+                    <!-- Purchases -->
+                    <a class="nav-link-item @(currentController == "Purchases" ? "active" : "")" 
+                       asp-controller="Purchases" asp-action="Index">
+                        <i class="bi bi-cart-plus-fill nav-icon"></i>
+                        <span class="nav-text">Purchases</span>
+                    </a>
+
+                    <!-- Sales -->
+                    <a class="nav-link-item @(currentController == "Sales" ? "active" : "")" 
+                       asp-controller="Sales" asp-action="Index">
+                        <i class="bi bi-receipt nav-icon"></i>
+                        <span class="nav-text">Sales Orders</span>
+                    </a>
+
+                    <!-- Suppliers -->
+                    <a class="nav-link-item @(currentController == "Suppliers" ? "active" : "")" 
+                       asp-controller="Suppliers" asp-action="Index">
+                        <i class="bi bi-truck-flatbed nav-icon"></i>
+                        <span class="nav-text">Suppliers</span>
+                    </a>
+                </div>
+
+                <!-- SYSTEM SECTION -->
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+
+                    <!-- Notifications -->
+                    <a class="nav-link-item @(currentController == "Notifications" ? "active" : "")" 
+                       asp-controller="Notifications" asp-action="Index">
+                        <i class="bi bi-bell-fill nav-icon"></i>
+                        <span class="nav-text">Stock Alerts</span>
+                    </a>
+
+                    <!-- Home Portal -->
+                    <a class="nav-link-item @(currentController == "Home" ? "active" : "")" 
+                       asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-house-door-fill nav-icon"></i>
+                        <span class="nav-text">System Home</span>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Bottom Profile & Collapse -->
+            <div class="sidebar-footer">
+                <div class="user-profile-card">
+                    <div class="user-avatar">
+                        <span>WM</span>
+                    </div>
+                    <div class="user-profile-details">
+                        <span class="user-profile-name">Warehouse Admin</span>
+                        <span class="user-profile-role">
+                            <i class="bi bi-circle-fill text-success" style="font-size: 0.5rem;"></i> Online
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- ==========================================
+             MAIN CONTENT AREA
+             ========================================== -->
+        <div class="app-main">
+
+            <!-- Top Header Navbar -->
+            <header class="app-header">
+                
+                <div class="header-left">
+                    <!-- Mobile Hamburger -->
+                    <button type="button" class="header-action-btn d-lg-none" id="mobileMenuBtn" aria-label="Toggle Menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <!-- Desktop Sidebar Toggle -->
+                    <button type="button" class="header-action-btn d-none d-lg-flex" id="sidebarToggleBtn" aria-label="Collapse Sidebar" title="Toggle Sidebar">
+                        <i class="bi bi-layout-sidebar-inset"></i>
+                    </button>
+
+                    <!-- Breadcrumbs -->
+                    <div class="header-breadcrumb">
+                        <span class="breadcrumb-root">Electronics Warehouse</span>
+                        <span class="breadcrumb-separator"><i class="bi bi-chevron-right"></i></span>
+                        <span class="breadcrumb-current">@(ViewData["Title"] ?? "Dashboard")</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+
+                    <!-- Global Search -->
+                    <div class="header-search">
+                        <i class="bi bi-search header-search-icon"></i>
+                        <input type="text" 
+                               id="globalSearchInput" 
+                               class="header-search-input" 
+                               placeholder="Search inventory (Ctrl+K)..." 
+                               aria-label="Global Search" />
+                    </div>
+
+                    <!-- Low Stock Alerts Bell -->
+                    <a asp-controller="Notifications" asp-action="Index" class="header-action-btn notification-btn" title="Stock Notifications">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-badge"></span>
+                    </a>
+
+                    <!-- Theme Switcher -->
+                    <button type="button" class="header-action-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+                        <i class="bi bi-moon-stars-fill"></i>
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
+
+                    <!-- User Profile Dropdown Avatar -->
+                    <div class="dropdown">
+                        <button class="header-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Account">
+                            <i class="bi bi-person-circle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="background-color: var(--bg-surface); border-color: var(--border);">
+                            <li><h6 class="dropdown-header text-muted">Warehouse Operations</h6></li>
+                            <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" asp-controller="Products" asp-action="Index"><i class="bi bi-box-seam me-2"></i> All Products</a></li>
+                            <li><hr class="dropdown-divider" style="border-color: var(--border);" /></li>
+                            <li><span class="dropdown-item-text text-muted small"><i class="bi bi-shield-check text-success me-1"></i> Authorized Admin</span></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- Main Page Dynamic Body -->
+            <main class="app-content">
+                @RenderBody()
+            </main>
+
+            <!-- Minimal Footer -->
+            <footer class="app-footer">
+                <div>
+                    &copy; 2026 <strong>Electronics Warehouse Management System</strong>. Production Ready.
+                </div>
+                <div class="d-none d-sm-block">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">ITI Menoufia Graduation Platform</span>
+                </div>
+            </footer>
+
+        </div>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ElectronicsWareHouse - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- ==========================================
+         REUSABLE DELETE CONFIRMATION MODAL
+         ========================================== -->
+    <div class="modal fade" id="ewDeleteModal" tabindex="-1" aria-labelledby="ewDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+                    <h5 class="modal-title text-danger fw-bold d-flex align-items-center gap-2" id="ewDeleteModalLabel">
+                        <i class="bi bi-exclamation-octagon-fill"></i> Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-2">Are you sure you want to delete <strong id="ewDeleteItemTitle" class="text-primary">this item</strong>?</p>
+                    <div class="danger-zone-card mt-3">
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-info-circle-fill text-danger mt-1"></i>
+                            <div class="small" id="ewDeleteItemDetails">
+                                This action is permanent and cannot be reversed. If this item has related sales or purchase transactions, deletion may be restricted by the system.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border);">
+                    <button type="button" class="ew-btn ew-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="ewDeleteModalForm" method="post" action="">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="ew-btn ew-btn-danger">
+                            <i class="bi bi-trash3-fill"></i> Delete Item
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- Essential Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

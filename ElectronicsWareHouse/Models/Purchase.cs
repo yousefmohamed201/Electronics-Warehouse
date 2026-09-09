@@ -10,7 +10,7 @@
 
         public decimal TotalAmount { get; set; }
 
-        public Supplier Supplier { get; set; } = null!;
+        public Supplier? Supplier { get; set; } 
 
         public ICollection<PurchaseItem> PurchaseItems { get; set; }
             = new List<PurchaseItem>();

@@ -1,78 +1,130 @@
 @model ElectronicsWareHouse.Models.Product
 
 @{
-    ViewData["Title"] = "Edit Product";
+    ViewData["Title"] = "Edit " + Model.ProductName;
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-warning text-dark">
-                <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Product: @Model.ProductName</h4>
-            </div>
-            <div class="card-body">
-                <form asp-action="Edit" method="post">
-                    <input type="hidden" asp-for="ProductID" />
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="SKU" class="form-label fw-semibold"></label>
-                            <input asp-for="SKU" class="form-control" />
-                            <span asp-validation-for="SKU" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="ProductName" class="form-label fw-semibold"></label>
-                            <input asp-for="ProductName" class="form-control" />
-                            <span asp-validation-for="ProductName" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="CategoryID" class="form-label fw-semibold"></label>
-                        <select asp-for="CategoryID" asp-items="ViewBag.CategoryID" class="form-select">
-                            <option value="">-- Select Category --</option>
-                        </select>
-                        <span asp-validation-for="CategoryID" class="text-danger"></span>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="UnitPrice" class="form-label fw-semibold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input asp-for="UnitPrice" type="number" step="0.01" class="form-control" />
-                            </div>
-                            <span asp-validation-for="UnitPrice" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="StockQuantity" class="form-label fw-semibold"></label>
-                            <input asp-for="StockQuantity" type="number" class="form-control" />
-                            <span asp-validation-for="StockQuantity" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="LowStockThreshold" class="form-label fw-semibold"></label>
-                            <input asp-for="LowStockThreshold" type="number" class="form-control" />
-                            <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between pt-3 border-top">
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-1"></i> Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Catalog
+    </a>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h1 class="h2 mb-1">Edit Product #@Model.ProductID</h1>
+            <p class="text-muted mb-0">Update specifications, category classification, or inventory limits.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Details" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-eye"></i> View Details
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-danger">
+                <i class="bi bi-trash3"></i> Delete
+            </a>
         </div>
     </div>
 </div>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ProductID" />
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-4"></div>
+
+    <div class="row g-4">
+        <!-- Main Specifications Card -->
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="form-section-title">Product Details</div>
+                <div class="form-section-desc">Primary identification and category mapping</div>
+
+                <div class="row g-3">
+                    <!-- Product Name -->
+                    <div class="col-12">
+                        <div class="ew-form-group">
+                            <label asp-for="ProductName" class="ew-label ew-label-required">Product Name / Model</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-cpu input-icon"></i>
+                                <input asp-for="ProductName" class="ew-input" />
+                            </div>
+                            <span asp-validation-for="ProductName" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- SKU & Category -->
+                    <div class="col-md-6">
+                        <div class="ew-form-group">
+                            <label asp-for="SKU" class="ew-label ew-label-required">SKU / Barcode</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-upc-scan input-icon"></i>
+                                <input asp-for="SKU" class="ew-input font-mono" />
+                            </div>
+                            <span asp-validation-for="SKU" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="ew-form-group">
+                            <label asp-for="CategoryID" class="ew-label ew-label-required">Category</label>
+                            <select asp-for="CategoryID" asp-items="ViewBag.CategoryID" class="ew-select">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryID" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Unit Price -->
+                    <div class="col-md-12">
+                        <div class="ew-form-group">
+                            <label asp-for="UnitPrice" class="ew-label ew-label-required">Unit Selling Price (EGP)</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-currency-dollar input-icon"></i>
+                                <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="ew-input font-mono" />
+                            </div>
+                            <span asp-validation-for="UnitPrice" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Control Card -->
+        <div class="col-lg-4">
+            <div class="form-card mb-4">
+                <div class="form-section-title">Stock Controls</div>
+                <div class="form-section-desc">Inventory quantities and restock thresholds</div>
+
+                <div class="ew-form-group">
+                    <label asp-for="StockQuantity" class="ew-label ew-label-required">Current Stock Quantity</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-boxes input-icon"></i>
+                        <input asp-for="StockQuantity" type="number" min="0" class="ew-input font-mono" />
+                    </div>
+                    <span asp-validation-for="StockQuantity" class="field-validation-error"></span>
+                    <small class="text-muted d-block mt-1">Units available in warehouse</small>
+                </div>
+
+                <div class="ew-form-group">
+                    <label asp-for="LowStockThreshold" class="ew-label ew-label-required">Low Stock Threshold</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-exclamation-triangle input-icon text-warning"></i>
+                        <input asp-for="LowStockThreshold" type="number" min="0" class="ew-input font-mono" />
+                    </div>
+                    <span asp-validation-for="LowStockThreshold" class="field-validation-error"></span>
+                    <small class="text-muted d-block mt-1">Triggers restock alert when stock falls below this number</small>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="ew-card p-3">
+                <button type="submit" class="ew-btn ew-btn-primary w-100 mb-2">
+                    <i class="bi bi-check2-circle"></i> Save Changes
+                </button>
+                <a asp-action="Index" class="ew-btn ew-btn-secondary w-100">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

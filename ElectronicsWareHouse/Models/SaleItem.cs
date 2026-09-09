@@ -12,8 +12,8 @@
 
         public decimal UnitPrice { get; set; }
 
-        public Sale Sale { get; set; } = null!;
+        public Sale? Sale { get; set; } 
 
-        public Product Product { get; set; } = null!;
+        public Product? Product { get; set; } 
     }
 }

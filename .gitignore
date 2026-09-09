@@ -1,11 +1,7 @@
-## Visual Studio & .NET Gitignore
 .vs/
-bin/
-obj/
+**/bin/
+**/obj/
+**/*.csproj.user
+Visual Studio 18/
 *.user
-*.userosscache
-*.sln.docstates
-[Dd]ebug/
-[Rr]elease/
 *.suo
-*.user

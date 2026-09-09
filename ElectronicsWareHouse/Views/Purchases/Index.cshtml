@@ -1,70 +1,102 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
 @model IEnumerable<ElectronicsWareHouse.Models.Purchase>
 
 @{
-    ViewData["Title"] = "Purchases";
+    ViewData["Title"] = "Inbound Purchases";
 }
 
-<h1>Purchases</h1>
+<!-- ==========================================
+     PAGE HEADER & ACTIONS
+     ========================================== -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Procurement & Purchases</h1>
+        <p class="text-muted mb-0">
+            Log and track inbound shipments, supplier purchase orders, and stock receipts.
+        </p>
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        New Purchase
+    <a asp-action="Create" class="ew-btn ew-btn-primary">
+        <i class="bi bi-cart-plus"></i> Create Purchase Order
     </a>
-</p>
+</div>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Supplier</th>
-            <th>Date</th>
-            <th>Total Amount</th>
-            <th>Items</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+<!-- ==========================================
+     PURCHASES LEDGER TABLE
+     ========================================== -->
+@if (!Model.Any())
+{
+    <div class="ew-card">
+        <div class="ew-empty-state">
+            <div class="empty-icon-wrap"><i class="bi bi-cart-x"></i></div>
+            <div class="empty-title">No Purchase Orders Recorded</div>
+            <p class="empty-description">
+                Receive inbound shipments from suppliers to replenish stock levels in your warehouse.
+            </p>
+            <a asp-action="Create" class="ew-btn ew-btn-primary">
+                <i class="bi bi-cart-plus"></i> Log Inbound Purchase
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="ew-table-wrapper">
+        <div class="table-responsive">
+            <table class="ew-table">
+                <thead>
+                    <tr>
+                        <th>Purchase Order</th>
+                        <th>Supplier Vendor</th>
+                        <th>Receipt Timestamp</th>
+                        <th>Line Items</th>
+                        <th class="text-end">Total Valuation</th>
+                        <th class="text-end" style="width: 130px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var purchase in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@purchase.PurchaseID" class="fw-bold text-decoration-none">
+                                    PO #@purchase.PurchaseID
+                                </a>
+                            </td>
 
-    <tbody>
-        @foreach (var purchase in Model)
-        {
-            <tr>
-                <td>@purchase.PurchaseID</td>
+                            <td>
+                                <span class="ew-badge ew-badge-neutral">
+                                    <i class="bi bi-truck text-muted"></i> @(purchase.Supplier?.SupplierName ?? "Unassigned")
+                                </span>
+                            </td>
 
-                <td>
-                    @purchase.Supplier.SupplierName
-                </td>
+                            <td class="text-muted small">
+                                @purchase.PurchaseDate.ToString("dd MMM yyyy, HH:mm")
+                            </td>
 
-                <td>
-                    @purchase.PurchaseDate.ToString("yyyy-MM-dd HH:mm")
-                </td>
+                            <td>
+                                <span class="ew-badge ew-badge-info font-mono">
+                                    @purchase.PurchaseItems.Count line items
+                                </span>
+                            </td>
 
-                <td>
-                    @purchase.TotalAmount.ToString("0.00")
-                </td>
+                            <td class="text-end font-mono fw-bold text-primary">
+                                @purchase.TotalAmount.ToString("N2") <span class="text-muted small">EGP</span>
+                            </td>
 
-                <td>
-                    @purchase.PurchaseItems.Count
-                </td>
-
-                <td>
-                    <a asp-action="Details"
-                       asp-route-id="@purchase.PurchaseID"
-                       class="btn btn-info btn-sm">
-                        Details
-                    </a>
-
-                    <a asp-action="Delete"
-                       asp-route-id="@purchase.PurchaseID"
-                       class="btn btn-danger btn-sm">
-                        Delete
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@purchase.PurchaseID" class="ew-btn ew-btn-ghost ew-btn-icon" title="View Voucher">
+                                        <i class="bi bi-receipt"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@purchase.PurchaseID" class="ew-btn ew-btn-ghost ew-btn-icon text-danger" title="Cancel & Delete">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
