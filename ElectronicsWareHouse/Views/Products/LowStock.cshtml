@@ -1,0 +1,149 @@
+@model IEnumerable<ElectronicsWareHouse.Models.Product>
+
+@{
+    ViewData["Title"] = "Low Stock Alerts";
+    int count = Model.Count();
+}
+
+<!-- ==========================================
+     HEADER & ACTION LAUNCHPAD
+     ========================================== -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="h2 mb-0">Restock Command Center</h1>
+            @if (count > 0)
+            {
+                <span class="ew-badge ew-badge-warning">
+                    <span class="badge-dot"></span> @count Items Urgent
+                </span>
+            }
+            else
+            {
+                <span class="ew-badge ew-badge-success">
+                    <span class="badge-dot"></span> All Systems Optimal
+                </span>
+            }
+        </div>
+        <p class="text-muted mb-0">
+            Automated threshold monitors detecting items that require immediate vendor replenishment.
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-primary">
+            <i class="bi bi-cart-plus"></i> Create Restock Purchase Order
+        </a>
+        <a asp-action="Index" class="ew-btn ew-btn-secondary">
+            <i class="bi bi-box-seam"></i> View All Products
+        </a>
+    </div>
+</div>
+
+<!-- ==========================================
+     STATUS BANNER OR TABLE
+     ========================================== -->
+@if (!Model.Any())
+{
+    <div class="ew-card">
+        <div class="ew-empty-state">
+            <div class="empty-icon-wrap" style="color: var(--success); border-color: var(--success);">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="empty-title">All Stock Levels Optimal</div>
+            <p class="empty-description">
+                Every product in your warehouse catalog currently has units exceeding its configured minimum safety threshold.
+            </p>
+            <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                Return to Product Catalog
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="ew-table-wrapper">
+        <div class="table-responsive">
+            <table class="ew-table">
+                <thead>
+                    <tr>
+                        <th>Product Specification</th>
+                        <th>SKU Code</th>
+                        <th>Category</th>
+                        <th>Current Units</th>
+                        <th>Safety Threshold</th>
+                        <th>Urgency Severity</th>
+                        <th class="text-end" style="width: 160px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        var isDepleted = product.StockQuantity == 0;
+                        var rowClass = isDepleted ? "table-row-danger" : "table-row-warning";
+
+                        <tr class="@rowClass">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi @(isDepleted ? "bi-exclamation-octagon-fill text-danger" : "bi-exclamation-triangle-fill text-warning") fs-5"></i>
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@product.ProductID" class="fw-bold text-decoration-none">
+                                            @product.ProductName
+                                        </a>
+                                        <div class="text-muted small">Unit Price: @product.UnitPrice.ToString("N2") EGP</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="sku-badge"><i class="bi bi-upc-scan"></i> @product.SKU</span>
+                            </td>
+
+                            <td>
+                                <span class="ew-badge ew-badge-neutral">
+                                    @(product.Category?.CategoryName ?? "Unassigned")
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="font-mono fw-bold fs-6 @(isDepleted ? "text-danger" : "text-warning")">
+                                    @product.StockQuantity units
+                                </span>
+                            </td>
+
+                            <td class="font-mono text-muted">
+                                &le; @product.LowStockThreshold units
+                            </td>
+
+                            <td>
+                                @if (isDepleted)
+                                {
+                                    <span class="ew-badge ew-badge-danger">
+                                        <span class="badge-dot"></span> Depleted / Out of Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="ew-badge ew-badge-warning">
+                                        <span class="badge-dot"></span> Low Stock
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-primary ew-btn-sm" title="Procure Stock">
+                                        <i class="bi bi-cart-plus"></i> Restock
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@product.ProductID" class="ew-btn ew-btn-outline ew-btn-sm" title="Adjust Threshold">
+                                        <i class="bi bi-sliders"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

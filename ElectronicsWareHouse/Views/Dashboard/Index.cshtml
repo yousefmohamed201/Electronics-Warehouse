@@ -1,0 +1,594 @@
+@{
+    ViewData["Title"] = "Operations Dashboard";
+
+    var recentSales = ViewBag.RecentSales as IEnumerable<ElectronicsWareHouse.Models.Sale>
+        ?? Enumerable.Empty<ElectronicsWareHouse.Models.Sale>();
+
+    var recentPurchases = ViewBag.RecentPurchases as IEnumerable<ElectronicsWareHouse.Models.Purchase>
+        ?? Enumerable.Empty<ElectronicsWareHouse.Models.Purchase>();
+
+    var mostSoldProducts = ViewBag.MostSoldProducts as IEnumerable<dynamic>
+        ?? Enumerable.Empty<dynamic>();
+
+    int lowStockCount = ViewBag.LowStockCount ?? 0;
+}
+
+<!-- ==========================================
+     DASHBOARD HEADER & QUICK ACTIONS
+     ========================================== -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="h2 mb-0">Control Center</h1>
+            <span class="ew-badge ew-badge-success">
+                <span class="badge-dot"></span> Live Operations
+            </span>
+        </div>
+        <p class="text-muted mb-0">
+            Real-time telemetry, stock valuations, and inventory transactions overview.
+        </p>
+    </div>
+
+    <!-- Quick Action Launchpad -->
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Sales" asp-action="Create" class="ew-btn ew-btn-primary">
+            <i class="bi bi-plus-circle"></i> New Sale
+        </a>
+        <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-secondary">
+            <i class="bi bi-cart-plus"></i> Inbound Stock
+        </a>
+        <a asp-controller="Products" asp-action="Create" class="ew-btn ew-btn-outline">
+            <i class="bi bi-box-seam"></i> Add Product
+        </a>
+    </div>
+</div>
+
+<!-- ==========================================
+     1. PRIMARY KPI STATS CARDS (6 METRICS)
+     ========================================== -->
+<div class="row g-3 mb-4">
+
+    <!-- Total Products -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Catalog</span>
+                <div class="kpi-icon-wrap kpi-icon-primary">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalProducts</div>
+            <div class="kpi-footer">
+                <span>Total Products</span>
+                <a asp-controller="Products" asp-action="Index" class="text-primary fw-semibold text-decoration-none">
+                    View <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Stock Units -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Total Stock</span>
+                <div class="kpi-icon-wrap kpi-icon-cyan">
+                    <i class="bi bi-boxes"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalStockQuantity</div>
+            <div class="kpi-footer">
+                <span>Available Units</span>
+                <span class="text-muted">In Warehouse</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card @(lowStockCount > 0 ? "border-warning" : "")">
+            <div class="kpi-header">
+                <span class="kpi-label">Restock Alert</span>
+                <div class="kpi-icon-wrap @(lowStockCount > 0 ? "kpi-icon-warning" : "kpi-icon-success")">
+                    <i class="bi @(lowStockCount > 0 ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill")"></i>
+                </div>
+            </div>
+            <div class="kpi-value @(lowStockCount > 0 ? "text-warning" : "text-success")">
+                @lowStockCount
+            </div>
+            <div class="kpi-footer">
+                <span>Low Threshold</span>
+                @if (lowStockCount > 0)
+                {
+                    <a asp-controller="Products" asp-action="LowStock" class="text-warning fw-semibold text-decoration-none">
+                        Resolve <i class="bi bi-arrow-right"></i>
+                    </a>
+                }
+                else
+                {
+                    <span class="text-success fw-semibold">Optimal</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Categories</span>
+                <div class="kpi-icon-wrap kpi-icon-primary">
+                    <i class="bi bi-tags-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalCategories</div>
+            <div class="kpi-footer">
+                <span>Departments</span>
+                <a asp-controller="Categories" asp-action="Index" class="text-primary fw-semibold text-decoration-none">
+                    Manage <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Transactions -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Sales</span>
+                <div class="kpi-icon-wrap kpi-icon-success">
+                    <i class="bi bi-receipt"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalSales</div>
+            <div class="kpi-footer">
+                <span>Completed Orders</span>
+                <a asp-controller="Sales" asp-action="Index" class="text-primary fw-semibold text-decoration-none">
+                    Log <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchases Transactions -->
+    <div class="col-sm-6 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Purchases</span>
+                <div class="kpi-icon-wrap kpi-icon-cyan">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalPurchases</div>
+            <div class="kpi-footer">
+                <span>Inbound Orders</span>
+                <a asp-controller="Purchases" asp-action="Index" class="text-primary fw-semibold text-decoration-none">
+                    Log <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================
+     2. FINANCIAL VALUATIONS ROW
+     ========================================== -->
+<div class="row g-3 mb-4">
+    
+    <!-- Sales Revenue -->
+    <div class="col-md-6">
+        <div class="ew-card">
+            <div class="ew-card-body d-flex align-items-center justify-content-between p-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="kpi-label">Total Realized Revenue</span>
+                        <span class="ew-badge ew-badge-success"><i class="bi bi-arrow-up-right"></i> Inflow</span>
+                    </div>
+                    <div class="h2 text-success fw-bold font-mono mb-1">
+                        @ViewBag.SalesAmount.ToString("N2") <span class="fs-6 text-muted font-sans">EGP</span>
+                    </div>
+                    <small class="text-muted">
+                        Generated across <strong>@ViewBag.TotalSales</strong> registered customer sales
+                    </small>
+                </div>
+                <div class="kpi-icon-wrap kpi-icon-success d-none d-sm-flex" style="width: 56px; height: 56px; font-size: 1.6rem;">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Expenditure -->
+    <div class="col-md-6">
+        <div class="ew-card">
+            <div class="ew-card-body d-flex align-items-center justify-content-between p-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="kpi-label">Total Procurement Value</span>
+                        <span class="ew-badge ew-badge-info"><i class="bi bi-box-arrow-in-down"></i> Outflow</span>
+                    </div>
+                    <div class="h2 text-primary fw-bold font-mono mb-1">
+                        @ViewBag.PurchasesAmount.ToString("N2") <span class="fs-6 text-muted font-sans">EGP</span>
+                    </div>
+                    <small class="text-muted">
+                        Invested across <strong>@ViewBag.TotalPurchases</strong> inbound supplier shipments
+                    </small>
+                </div>
+                <div class="kpi-icon-wrap kpi-icon-primary d-none d-sm-flex" style="width: 56px; height: 56px; font-size: 1.6rem;">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================
+     3. INTERACTIVE ANALYTICS CHARTS
+     ========================================== -->
+<div class="row g-3 mb-4">
+
+    <!-- Sales Trend Chart -->
+    <div class="col-lg-6">
+        <div class="ew-card h-100">
+            <div class="ew-card-header">
+                <div>
+                    <h3 class="ew-card-title"><i class="bi bi-graph-up text-primary"></i> Sales Trajectory</h3>
+                    <p class="ew-card-subtitle">Revenue recorded across recent operating periods</p>
+                </div>
+                <span class="ew-badge ew-badge-neutral">EGP / Date</span>
+            </div>
+            <div class="ew-card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchases Chart -->
+    <div class="col-lg-6">
+        <div class="ew-card h-100">
+            <div class="ew-card-header">
+                <div>
+                    <h3 class="ew-card-title"><i class="bi bi-bar-chart text-cyan"></i> Procurement Activity</h3>
+                    <p class="ew-card-subtitle">Inbound stock expenditure timeline</p>
+                </div>
+                <span class="ew-badge ew-badge-neutral">EGP / Date</span>
+            </div>
+            <div class="ew-card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="purchaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================
+     4. TOP PRODUCTS LEADERBOARD
+     ========================================== -->
+<div class="ew-card mb-4">
+    <div class="ew-card-header">
+        <div>
+            <h3 class="ew-card-title"><i class="bi bi-trophy text-warning"></i> Top-Selling Electronics</h3>
+            <p class="ew-card-subtitle">Ranked by units moved and total revenue yield</p>
+        </div>
+        <a asp-controller="Sales" asp-action="Index" class="ew-btn ew-btn-outline ew-btn-sm">
+            View All Sales
+        </a>
+    </div>
+    <div class="ew-card-body p-0">
+        @if (!mostSoldProducts.Any())
+        {
+            <div class="ew-empty-state">
+                <div class="empty-icon-wrap"><i class="bi bi-cart-x"></i></div>
+                <div class="empty-title">No Sales Logged Yet</div>
+                <p class="empty-description">Create your first sale order to generate product performance analytics.</p>
+                <a asp-controller="Sales" asp-action="Create" class="ew-btn ew-btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create Sale
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="ew-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Rank</th>
+                            <th>SKU</th>
+                            <th>Product Description</th>
+                            <th>Units Sold</th>
+                            <th class="text-end">Total Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rank = 1; }
+                        @foreach (var item in mostSoldProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="ew-badge @(rank == 1 ? "ew-badge-warning" : (rank == 2 ? "ew-badge-info" : "ew-badge-neutral"))">
+                                        #@rank
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="sku-badge"><i class="bi bi-upc"></i> @item.SKU</span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">@item.ProductName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@item.QuantitySold</span> units
+                                </td>
+                                <td class="text-end font-mono fw-bold text-success">
+                                    @(((decimal)item.Revenue).ToString("N2")) EGP
+                                </td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ==========================================
+     5. RECENT ACTIVITY DUAL TABLES
+     ========================================== -->
+<div class="row g-3">
+
+    <!-- Recent Sales Table -->
+    <div class="col-lg-6">
+        <div class="ew-card h-100">
+            <div class="ew-card-header">
+                <div>
+                    <h3 class="ew-card-title"><i class="bi bi-clock-history text-primary"></i> Recent Sales</h3>
+                    <p class="ew-card-subtitle">Last 5 outgoing orders</p>
+                </div>
+                <a asp-controller="Sales" asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm">View All</a>
+            </div>
+            <div class="ew-card-body p-0">
+                @if (!recentSales.Any())
+                {
+                    <div class="p-4 text-center text-muted">No sales orders found.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="ew-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sale in recentSales)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Sales" asp-action="Details" asp-route-id="@sale.SaleID" class="fw-bold text-decoration-none">
+                                                #@sale.SaleID
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(sale.CustomerInfo) ? "Walk-in Buyer" : sale.CustomerInfo)
+                                        </td>
+                                        <td class="text-muted small">
+                                            @sale.SaleDate.ToString("dd MMM, HH:mm")
+                                        </td>
+                                        <td class="text-end font-mono fw-semibold">
+                                            @sale.TotalAmount.ToString("N2") EGP
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Purchases Table -->
+    <div class="col-lg-6">
+        <div class="ew-card h-100">
+            <div class="ew-card-header">
+                <div>
+                    <h3 class="ew-card-title"><i class="bi bi-box-arrow-in-down text-cyan"></i> Inbound Purchases</h3>
+                    <p class="ew-card-subtitle">Last 5 restock receipts</p>
+                </div>
+                <a asp-controller="Purchases" asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm">View All</a>
+            </div>
+            <div class="ew-card-body p-0">
+                @if (!recentPurchases.Any())
+                {
+                    <div class="p-4 text-center text-muted">No inbound shipments found.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="ew-table">
+                            <thead>
+                                <tr>
+                                    <th>PO #</th>
+                                    <th>Supplier</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var purchase in recentPurchases)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Purchases" asp-action="Details" asp-route-id="@purchase.PurchaseID" class="fw-bold text-decoration-none">
+                                                #@purchase.PurchaseID
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="ew-badge ew-badge-neutral">
+                                                @(purchase.Supplier?.SupplierName ?? "Unknown Supplier")
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small">
+                                            @purchase.PurchaseDate.ToString("dd MMM, HH:mm")
+                                        </td>
+                                        <td class="text-end font-mono fw-semibold text-primary">
+                                            @purchase.TotalAmount.ToString("N2") EGP
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==========================================
+     6. CHART.JS INITIALIZATION & THEME LISTENER
+     ========================================== -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function () {
+            const salesLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SalesChartLabels ?? new List<string>()));
+            const salesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SalesChartData ?? new List<decimal>()));
+            const purchaseLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PurchaseChartLabels ?? new List<string>()));
+            const purchaseData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PurchaseChartData ?? new List<decimal>()));
+
+            function getChartThemeColors() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                return {
+                    textColor: isDark ? '#94a3b8' : '#64748b',
+                    gridColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
+                    primaryLine: isDark ? '#60a5fa' : '#2563eb',
+                    primaryFill: isDark ? 'rgba(96, 165, 250, 0.15)' : 'rgba(37, 99, 235, 0.1)',
+                    cyanBar: isDark ? '#22d3ee' : '#0891b2',
+                    tooltipBg: isDark ? '#111827' : '#ffffff',
+                    tooltipText: isDark ? '#f8fafc' : '#0f172a'
+                };
+            }
+
+            let salesChartInstance = null;
+            let purchaseChartInstance = null;
+
+            function renderCharts() {
+                const theme = getChartThemeColors();
+
+                // 1. Sales Line Chart
+                const salesCtx = document.getElementById('salesChart');
+                if (salesCtx) {
+                    if (salesChartInstance) salesChartInstance.destroy();
+                    salesChartInstance = new Chart(salesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: salesLabels.length ? salesLabels : ['No Data'],
+                            datasets: [{
+                                label: 'Sales Revenue (EGP)',
+                                data: salesData.length ? salesData : [0],
+                                borderColor: theme.primaryLine,
+                                backgroundColor: theme.primaryFill,
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.35,
+                                pointBackgroundColor: theme.primaryLine,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: theme.tooltipBg,
+                                    titleColor: theme.tooltipText,
+                                    bodyColor: theme.tooltipText,
+                                    borderColor: theme.gridColor,
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    boxPadding: 4,
+                                    usePointStyle: true
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: theme.gridColor },
+                                    ticks: { color: theme.textColor, font: { family: 'Inter', size: 11 } }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: theme.gridColor },
+                                    ticks: { color: theme.textColor, font: { family: 'Inter', size: 11 } }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 2. Purchase Bar Chart
+                const purchaseCtx = document.getElementById('purchaseChart');
+                if (purchaseCtx) {
+                    if (purchaseChartInstance) purchaseChartInstance.destroy();
+                    purchaseChartInstance = new Chart(purchaseCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: purchaseLabels.length ? purchaseLabels : ['No Data'],
+                            datasets: [{
+                                label: 'Procurement (EGP)',
+                                data: purchaseData.length ? purchaseData : [0],
+                                backgroundColor: theme.cyanBar,
+                                borderRadius: 6,
+                                maxBarThickness: 32
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: theme.tooltipBg,
+                                    titleColor: theme.tooltipText,
+                                    bodyColor: theme.tooltipText,
+                                    borderColor: theme.gridColor,
+                                    borderWidth: 1,
+                                    padding: 10
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: theme.textColor, font: { family: 'Inter', size: 11 } }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: theme.gridColor },
+                                    ticks: { color: theme.textColor, font: { family: 'Inter', size: 11 } }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            renderCharts();
+
+            // Re-render when theme switches
+            window.addEventListener('ewThemeChanged', renderCharts);
+        })();
+    </script>
+}

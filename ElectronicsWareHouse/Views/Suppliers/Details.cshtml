@@ -1,0 +1,150 @@
+@model ElectronicsWareHouse.Models.Supplier
+
+@{
+    ViewData["Title"] = $"Supplier Profile - {Model.SupplierName}";
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header with Action Toolbar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-xs">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-secondary text-decoration-none">Suppliers</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.SupplierName</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <h1 class="page-title mb-0">
+                    <i class="bi bi-building me-2 text-primary"></i>@Model.SupplierName
+                </h1>
+                <span class="ew-badge ew-badge-success">
+                    <i class="bi bi-patch-check-fill me-1"></i>Verified Partner
+                </span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Products" asp-route-id="@Model.SupplierID" class="ew-btn ew-btn-primary">
+                <i class="bi bi-boxes me-1"></i>View Catalog Items
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.SupplierID" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Directory
+            </a>
+        </div>
+    </div>
+
+    <!-- Partner Details Grid -->
+    <div class="row g-4">
+        <!-- Main Contact & Location Card -->
+        <div class="col-lg-7">
+            <div class="ew-card h-100">
+                <div class="ew-card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-lines-fill text-primary"></i>
+                        <span class="fw-semibold">Partner Information</span>
+                    </div>
+                    <span class="font-monospace text-xs text-secondary">Supplier #@Model.SupplierID</span>
+                </div>
+                <div class="ew-card-body d-flex flex-column gap-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-3 p-3 bg-light border text-primary d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <i class="bi bi-building fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-main mb-1">@Model.SupplierName</h5>
+                            <span class="text-xs text-secondary">Commercial Logistics & Electronics Vendor</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Primary Representative</span>
+                            <div class="text-sm fw-medium text-main">
+                                <i class="bi bi-person me-1 text-secondary"></i>@(string.IsNullOrEmpty(Model.ContactName) ? "None designated" : Model.ContactName)
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Telephone</span>
+                            @if (!string.IsNullOrEmpty(Model.Phone))
+                            {
+                                <a href="tel:@Model.Phone" class="font-monospace text-sm text-primary text-decoration-none">
+                                    <i class="bi bi-telephone me-1"></i>@Model.Phone
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-sm text-muted">Not specified</span>
+                            }
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Email Coordinates</span>
+                            @if (!string.IsNullOrEmpty(Model.Email))
+                            {
+                                <a href="mailto:@Model.Email" class="text-sm text-primary text-decoration-none">
+                                    <i class="bi bi-envelope me-1"></i>@Model.Email
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-sm text-muted">Not specified</span>
+                            }
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Contract Status</span>
+                            <span class="ew-badge ew-badge-success text-xs">
+                                <i class="bi bi-shield-check me-1"></i>Active Vendor
+                            </span>
+                        </div>
+
+                        <div class="col-12">
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Physical / Shipping Address</span>
+                            <div class="p-3 rounded-2 bg-light border text-sm text-secondary">
+                                <i class="bi bi-geo-alt me-1 text-danger"></i>@(string.IsNullOrEmpty(Model.Address) ? "No physical address registered" : Model.Address)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Procurement Stats -->
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-4">
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-lightning-charge text-primary"></i>
+                        <span class="fw-semibold">Procurement Actions</span>
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-3">
+                        <p class="text-secondary text-xs mb-0">Create new purchase orders specifically sourced from this partner or browse their active inventory line.</p>
+                        <a asp-action="Products" asp-route-id="@Model.SupplierID" class="ew-btn ew-btn-primary w-100 justify-content-center">
+                            <i class="bi bi-boxes me-1"></i>Browse Supplied Products
+                        </a>
+                        <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-secondary w-100 justify-content-center">
+                            <i class="bi bi-cart-plus me-1"></i>Create Purchase Order
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ew-card border-danger-subtle">
+                    <div class="ew-card-header d-flex align-items-center justify-content-between">
+                        <span class="fw-semibold text-danger">Danger Zone</span>
+                        <i class="bi bi-exclamation-octagon text-danger"></i>
+                    </div>
+                    <div class="ew-card-body">
+                        <p class="text-xs text-secondary mb-3">Terminate vendor relationship and delete master record. Only possible if no active dependencies exist.</p>
+                        <a asp-action="Delete" asp-route-id="@Model.SupplierID" class="ew-btn ew-btn-danger btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>Delete Supplier
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

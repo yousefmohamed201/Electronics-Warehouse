@@ -1,0 +1,267 @@
+@model ElectronicsWareHouse.Models.Sale
+
+@{
+    ViewData["Title"] = "New Sale Order";
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-xs">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-secondary text-decoration-none">Sales</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">New Sale Order</li>
+                </ol>
+            </nav>
+            <h1 class="page-title mb-1">
+                <i class="bi bi-cart-check me-2 text-primary"></i>Create Sales Order
+            </h1>
+            <p class="text-secondary text-sm mb-0">Record outbound product dispatch, customer details, and invoice generation.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post" id="saleForm">
+        <div asp-validation-summary="All" class="alert alert-danger py-2 px-3 mb-4 rounded-3 text-sm" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+        <div class="row g-4">
+            <!-- Left: Order Setup & Line Items -->
+            <div class="col-lg-8">
+                <!-- Customer Details Card -->
+                <div class="ew-card mb-4">
+                    <div class="ew-card-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person text-primary"></i>
+                            <span class="fw-semibold">Customer Account Information</span>
+                        </div>
+                        <span class="ew-badge ew-badge-info">Walk-in or Corporate</span>
+                    </div>
+                    <div class="ew-card-body">
+                        <div>
+                            <label asp-for="CustomerInfo" class="form-label text-xs fw-semibold text-secondary text-uppercase mb-1">
+                                Customer Name / Reference
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-secondary">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+                                <input asp-for="CustomerInfo" class="form-control border-start-0 ps-0" placeholder="e.g. Acme Corp / Sarah Connor (or leave blank for Walk-in)" />
+                            </div>
+                            <span asp-validation-for="CustomerInfo" class="text-danger text-xs mt-1 d-block"></span>
+                            <div class="form-text text-xs text-muted mt-1">Leave empty to designate transaction as a generic Walk-in Customer.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-basket text-primary"></i>
+                            <span class="fw-semibold">Dispatched Products</span>
+                        </div>
+                        <span class="text-xs text-secondary" id="itemCounter">1 item listed</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table ew-table align-middle mb-0" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 260px;">Product Item</th>
+                                    <th style="width: 140px;">Quantity</th>
+                                    <th style="width: 160px;">Unit Price ($)</th>
+                                    <th style="width: 160px;">Row Total ($)</th>
+                                    <th style="width: 70px;" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsBody">
+                                <tr class="sale-row">
+                                    <td>
+                                        <select name="items[0].ProductID" class="form-select form-select-sm product-select" required>
+                                            <option value="">-- Select Product --</option>
+                                            @if (ViewBag.Products != null)
+                                            {
+                                                foreach (var product in ViewBag.Products)
+                                                {
+                                                    <option value="@product.Value">@product.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="items[0].Quantity" class="form-control quantity text-center" min="1" value="1" required />
+                                            <span class="input-group-text bg-light text-xs text-secondary">pcs</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-xs text-secondary">$</span>
+                                            <input type="number" name="items[0].UnitPrice" class="form-control unit-price text-end font-monospace" min="0" step="0.01" value="0.00" required />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-xs text-secondary">$</span>
+                                            <input type="text" class="form-control row-total text-end font-monospace fw-semibold" value="0.00" readonly style="background-color: var(--surface-bg-alt);" />
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-row p-1 px-2 rounded-2" title="Remove line item">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="ew-card-body border-top p-3 bg-light-subtle">
+                        <button type="button" id="addRow" class="ew-btn ew-btn-secondary btn-sm">
+                            <i class="bi bi-plus-lg me-1"></i>Add Another Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Checkout Summary -->
+            <div class="col-lg-4">
+                <div class="ew-card position-sticky" style="top: calc(var(--header-height) + 1.5rem);">
+                    <div class="ew-card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-receipt text-primary"></i>
+                        <span class="fw-semibold">Invoice Summary</span>
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between text-sm">
+                            <span class="text-secondary">Subtotal:</span>
+                            <span class="font-monospace fw-medium text-main" id="subtotalDisplay">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-sm">
+                            <span class="text-secondary">Discounts / Promo:</span>
+                            <span class="font-monospace text-muted">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-sm">
+                            <span class="text-secondary">Stock Inventory Impact:</span>
+                            <span class="ew-badge ew-badge-danger text-xs"><i class="bi bi-arrow-down-right me-1"></i>Stock Deduction</span>
+                        </div>
+
+                        <hr class="my-1" style="border-color: var(--border-subtle);" />
+
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="fw-bold text-sm text-uppercase text-secondary">Total Due:</span>
+                            <div class="text-end">
+                                <span class="fs-4 fw-bold font-monospace text-primary">$<span id="grandTotal">0.00</span></span>
+                                <div class="text-xs text-muted">USD gross amount</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning py-2 px-3 rounded-3 text-xs mb-0 d-flex gap-2 align-items-center">
+                            <i class="bi bi-exclamation-triangle flex-shrink-0 fs-6"></i>
+                            <span>Warehouse stock quantities will be automatically deducted upon order creation.</span>
+                        </div>
+
+                        <div class="d-grid gap-2 pt-2">
+                            <button type="submit" class="ew-btn ew-btn-primary w-100 justify-content-center py-2">
+                                <i class="bi bi-check2-circle me-1"></i>Confirm & Generate Invoice
+                            </button>
+                            <a asp-action="Index" class="ew-btn ew-btn-secondary w-100 justify-content-center py-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let rowIndex = 1;
+        const itemsBody = document.getElementById("itemsBody");
+        const addRowButton = document.getElementById("addRow");
+        const grandTotal = document.getElementById("grandTotal");
+        const subtotalDisplay = document.getElementById("subtotalDisplay");
+        const itemCounter = document.getElementById("itemCounter");
+
+        function updateCounter() {
+            const count = document.querySelectorAll(".sale-row").length;
+            if (itemCounter) {
+                itemCounter.textContent = `${count} item${count > 1 ? 's' : ''} listed`;
+            }
+        }
+
+        addRowButton.addEventListener("click", function() {
+            const firstRow = document.querySelector(".sale-row");
+            const newRow = firstRow.cloneNode(true);
+
+            newRow.querySelector(".product-select").name = `items[${rowIndex}].ProductID`;
+            newRow.querySelector(".quantity").name = `items[${rowIndex}].Quantity`;
+            newRow.querySelector(".unit-price").name = `items[${rowIndex}].UnitPrice`;
+
+            newRow.querySelector(".product-select").value = "";
+            newRow.querySelector(".quantity").value = 1;
+            newRow.querySelector(".unit-price").value = "0.00";
+            newRow.querySelector(".row-total").value = "0.00";
+
+            itemsBody.appendChild(newRow);
+            rowIndex++;
+            updateCounter();
+            attachEvents(newRow);
+        });
+
+        function attachEvents(row) {
+            const quantity = row.querySelector(".quantity");
+            const unitPrice = row.querySelector(".unit-price");
+            const removeButton = row.querySelector(".remove-row");
+
+            quantity.addEventListener("input", calculateTotal);
+            unitPrice.addEventListener("input", calculateTotal);
+
+            removeButton.addEventListener("click", function() {
+                const rows = document.querySelectorAll(".sale-row");
+                if (rows.length > 1) {
+                    row.remove();
+                    calculateGrandTotal();
+                    updateCounter();
+                } else {
+                    if (window.ewToast) {
+                        window.ewToast.show("At least one sale item is required", "warning");
+                    } else {
+                        alert("At least one sale item is required.");
+                    }
+                }
+            });
+
+            function calculateTotal() {
+                const qty = parseFloat(quantity.value) || 0;
+                const price = parseFloat(unitPrice.value) || 0;
+                const total = qty * price;
+                row.querySelector(".row-total").value = total.toFixed(2);
+                calculateGrandTotal();
+            }
+        }
+
+        function calculateGrandTotal() {
+            let total = 0;
+            document.querySelectorAll(".sale-row").forEach(function(row) {
+                const qty = parseFloat(row.querySelector(".quantity").value) || 0;
+                const price = parseFloat(row.querySelector(".unit-price").value) || 0;
+                total += qty * price;
+            });
+
+            const formatted = total.toFixed(2);
+            grandTotal.textContent = formatted;
+            if (subtotalDisplay) {
+                subtotalDisplay.textContent = `$${formatted}`;
+            }
+        }
+
+        document.querySelectorAll(".sale-row").forEach(function(row) {
+            attachEvents(row);
+        });
+    </script>
+}

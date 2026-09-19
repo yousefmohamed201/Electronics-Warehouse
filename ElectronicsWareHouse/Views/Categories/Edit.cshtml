@@ -1,0 +1,59 @@
+@model ElectronicsWareHouse.Models.Category
+
+@{
+    ViewData["Title"] = "Edit Category - " + Model.CategoryName;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Categories
+    </a>
+    <h1 class="h2 mb-1">Edit Category: @Model.CategoryName</h1>
+    <p class="text-muted mb-0">
+        Update classification department name or operational scope description.
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="form-card">
+            <div class="form-section-title">Category Details</div>
+            <div class="form-section-desc">Department configuration #@Model.CategoryID</div>
+
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="CategoryID" />
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-3"></div>
+
+                <div class="ew-form-group">
+                    <label asp-for="CategoryName" class="ew-label ew-label-required">Category Name</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-tag input-icon"></i>
+                        <input asp-for="CategoryName" class="ew-input" />
+                    </div>
+                    <span asp-validation-for="CategoryName" class="field-validation-error"></span>
+                </div>
+
+                <div class="ew-form-group">
+                    <label asp-for="Description" class="ew-label">Department Description</label>
+                    <textarea asp-for="Description" class="ew-textarea" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="field-validation-error"></span>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="ew-btn ew-btn-primary">
+                        <i class="bi bi-check2-circle"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

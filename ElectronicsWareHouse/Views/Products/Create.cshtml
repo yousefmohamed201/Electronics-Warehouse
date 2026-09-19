@@ -1,0 +1,120 @@
+@model ElectronicsWareHouse.Models.Product
+
+@{
+    ViewData["Title"] = "Add New Product";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Catalog
+    </a>
+    <h1 class="h2 mb-1">Add New Product</h1>
+    <p class="text-muted mb-0">
+        Register an electronic device or inventory SKU into the warehouse management catalog.
+    </p>
+</div>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-4"></div>
+
+    <div class="row g-4">
+        <!-- Main Specifications Card -->
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="form-section-title">Product Details</div>
+                <div class="form-section-desc">Primary identification and category mapping</div>
+
+                <div class="row g-3">
+                    <!-- Product Name -->
+                    <div class="col-12">
+                        <div class="ew-form-group">
+                            <label asp-for="ProductName" class="ew-label ew-label-required">Product Name / Model</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-cpu input-icon"></i>
+                                <input asp-for="ProductName" class="ew-input" placeholder="e.g., Apple iPad Pro 11-inch M4 256GB" />
+                            </div>
+                            <span asp-validation-for="ProductName" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- SKU & Category -->
+                    <div class="col-md-6">
+                        <div class="ew-form-group">
+                            <label asp-for="SKU" class="ew-label ew-label-required">SKU / Barcode</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-upc-scan input-icon"></i>
+                                <input asp-for="SKU" class="ew-input font-mono" placeholder="e.g., ELEC-IPD-M4-01" />
+                            </div>
+                            <span asp-validation-for="SKU" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="ew-form-group">
+                            <label asp-for="CategoryID" class="ew-label ew-label-required">Category</label>
+                            <select asp-for="CategoryID" asp-items="ViewBag.CategoryID" class="ew-select">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryID" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Unit Price -->
+                    <div class="col-md-12">
+                        <div class="ew-form-group">
+                            <label asp-for="UnitPrice" class="ew-label ew-label-required">Unit Selling Price (EGP)</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-currency-dollar input-icon"></i>
+                                <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="ew-input font-mono" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="UnitPrice" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Control Card -->
+        <div class="col-lg-4">
+            <div class="form-card mb-4">
+                <div class="form-section-title">Inventory Controls</div>
+                <div class="form-section-desc">Stock count and telemetry alert thresholds</div>
+
+                <div class="ew-form-group">
+                    <label asp-for="StockQuantity" class="ew-label ew-label-required">Initial Stock Quantity</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-boxes input-icon"></i>
+                        <input asp-for="StockQuantity" type="number" min="0" class="ew-input font-mono" placeholder="0" />
+                    </div>
+                    <span asp-validation-for="StockQuantity" class="field-validation-error"></span>
+                    <small class="text-muted d-block mt-1">Available inventory units on shelf</small>
+                </div>
+
+                <div class="ew-form-group">
+                    <label asp-for="LowStockThreshold" class="ew-label ew-label-required">Low Stock Restock Threshold</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-exclamation-triangle input-icon text-warning"></i>
+                        <input asp-for="LowStockThreshold" type="number" min="0" class="ew-input font-mono" placeholder="10" />
+                    </div>
+                    <span asp-validation-for="LowStockThreshold" class="field-validation-error"></span>
+                    <small class="text-muted d-block mt-1">System flags restock alert when stock &le; threshold</small>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="ew-card p-3">
+                <button type="submit" class="ew-btn ew-btn-primary w-100 mb-2">
+                    <i class="bi bi-check2-circle"></i> Save Product to Catalog
+                </button>
+                <a asp-action="Index" class="ew-btn ew-btn-secondary w-100">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
