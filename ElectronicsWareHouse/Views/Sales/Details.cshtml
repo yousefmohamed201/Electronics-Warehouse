@@ -1,0 +1,176 @@
+@model ElectronicsWareHouse.Models.Sale
+
+@{
+    ViewData["Title"] = $"Sales Invoice #{Model.SaleID}";
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header with Action Toolbar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-xs">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-secondary text-decoration-none">Sales</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">INV-@Model.SaleID.ToString("D5")</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <h1 class="page-title mb-0">
+                    <i class="bi bi-receipt-cutoff me-2 text-primary"></i>Sales Invoice #@Model.SaleID.ToString("D5")
+                </h1>
+                <span class="ew-badge ew-badge-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>Completed & Paid
+                </span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="ew-btn ew-btn-secondary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>Print Receipt
+            </button>
+            <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Ledger
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main: Invoice Line Items Table -->
+        <div class="col-lg-8">
+            <div class="ew-card">
+                <div class="ew-card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-list-check text-primary"></i>
+                        <span class="fw-semibold">Purchased Merchandise</span>
+                    </div>
+                    <span class="text-xs text-secondary">@(Model.SaleItems?.Count ?? 0) item(s)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table ew-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Item Description</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SaleItems != null && Model.SaleItems.Any())
+                            {
+                                int idx = 1;
+                                foreach (var item in Model.SaleItems)
+                                {
+                                    <tr>
+                                        <td class="text-secondary text-xs">@idx</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="p-2 rounded bg-light border text-primary">
+                                                    <i class="bi bi-box"></i>
+                                                </div>
+                                                <div>
+                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductID" class="fw-semibold text-main text-decoration-none hover-primary">
+                                                        @(item.Product?.ProductName ?? "Product #" + item.ProductID)
+                                                    </a>
+                                                    <div class="text-xs text-secondary font-monospace">SKU: @(item.Product?.SKU ?? "N/A")</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="font-monospace fw-semibold">@item.Quantity</span>
+                                            <span class="text-xs text-muted ms-1">pcs</span>
+                                        </td>
+                                        <td class="text-end font-monospace text-secondary">
+                                            $@item.UnitPrice.ToString("N2")
+                                        </td>
+                                        <td class="text-end font-monospace fw-semibold text-main">
+                                            $@((item.Quantity * item.UnitPrice).ToString("N2"))
+                                        </td>
+                                    </tr>
+                                    idx++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No items recorded on this sale.</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: var(--surface-bg-alt);">
+                                <td colspan="3" class="text-end text-xs fw-semibold text-uppercase text-secondary">Grand Total Paid:</td>
+                                <td colspan="2" class="text-end">
+                                    <span class="fs-5 fw-bold font-monospace text-primary">$@Model.TotalAmount.ToString("N2")</span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Customer & Transaction Info -->
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-4">
+                <!-- Customer Info -->
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-person text-primary"></i>
+                        <span class="fw-semibold">Customer Account</span>
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle p-3 bg-light border text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-main mb-0">
+                                    @(string.IsNullOrEmpty(Model.CustomerInfo) ? "Walk-in Customer" : Model.CustomerInfo)
+                                </h6>
+                                <span class="text-xs text-secondary">Client Designation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Metadata -->
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <span class="fw-semibold">Transaction Details</span>
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-3">
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Issue Timestamp</span>
+                            <div class="font-monospace text-sm fw-medium text-main">
+                                <i class="bi bi-calendar3 me-1 text-secondary"></i>@Model.SaleDate.ToString("yyyy-MM-dd HH:mm:ss")
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Invoice Reference</span>
+                            <div class="font-monospace text-sm fw-medium text-main">
+                                INV-@Model.SaleID.ToString("D5")
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Payment Method</span>
+                            <span class="ew-badge ew-badge-info text-xs">
+                                <i class="bi bi-credit-card me-1"></i>Direct Settlement
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Warehouse Stock Status</span>
+                            <span class="ew-badge ew-badge-danger text-xs">
+                                <i class="bi bi-box-arrow-down me-1"></i>Dispatched & Deducted
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

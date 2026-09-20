@@ -1,0 +1,83 @@
+@model ElectronicsWareHouse.Models.Product
+
+@{
+    ViewData["Title"] = "Confirm Product Deletion";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Cancel & Return to Products
+    </a>
+    <h1 class="h2 mb-1 text-danger d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-octagon-fill"></i> Decommission Product
+    </h1>
+    <p class="text-muted mb-0">
+        Review item details and impact before executing permanent removal from database.
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <div class="ew-card border-danger mb-4">
+            <div class="ew-card-header bg-danger-subtle text-danger">
+                <h3 class="ew-card-title text-danger">
+                    <i class="bi bi-shield-exclamation"></i> Permanent Deletion Warning
+                </h3>
+            </div>
+            <div class="ew-card-body p-4">
+                <p class="text-danger fw-semibold mb-3">
+                    Are you certain you want to permanently delete this product?
+                </p>
+
+                <div class="danger-zone-card mb-4">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle-fill text-danger fs-5 mt-1"></i>
+                        <div>
+                            <strong>Referential Integrity Notice:</strong>
+                            <p class="small text-secondary mb-0 mt-1">
+                                If this product is referenced in historical <strong>Customer Sales</strong> or <strong>Inbound Supplier Purchases</strong>, database constraints will prevent deletion to safeguard financial audit records.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ew-card p-3 mb-4" style="background-color: var(--bg-surface-secondary);">
+                    <h5 class="fw-bold mb-3">Product Summary</h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Product Name</span>
+                            <span class="fw-bold">@Model.ProductName</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">SKU Code</span>
+                            <span class="sku-badge"><i class="bi bi-upc-scan"></i> @Model.SKU</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Category</span>
+                            <span class="fw-semibold">@(Model.Category?.CategoryName ?? "Unassigned")</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Current Stock</span>
+                            <span class="font-mono fw-bold">@Model.StockQuantity units</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2 justify-content-end">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ProductID" />
+                    
+                    <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                        Cancel & Keep Product
+                    </a>
+                    <button type="submit" class="ew-btn ew-btn-danger">
+                        <i class="bi bi-trash3-fill"></i> Permanently Delete Product
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

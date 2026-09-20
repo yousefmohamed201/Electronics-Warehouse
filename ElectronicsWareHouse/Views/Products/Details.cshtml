@@ -1,0 +1,170 @@
+@model ElectronicsWareHouse.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details - " + Model.ProductName;
+    var isLowStock = Model.StockQuantity <= Model.LowStockThreshold && Model.StockQuantity > 0;
+    var isOutOfStock = Model.StockQuantity == 0;
+    var totalValuation = Model.StockQuantity * Model.UnitPrice;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Products
+    </a>
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <h1 class="h2 mb-0">@Model.ProductName</h1>
+                <span class="sku-badge"><i class="bi bi-upc-scan"></i> @Model.SKU</span>
+                @if (isOutOfStock)
+                {
+                    <span class="ew-badge ew-badge-danger"><span class="badge-dot"></span> Out of Stock</span>
+                }
+                else if (isLowStock)
+                {
+                    <span class="ew-badge ew-badge-warning"><span class="badge-dot"></span> Low Stock Alert</span>
+                }
+                else
+                {
+                    <span class="ew-badge ew-badge-success"><span class="badge-dot"></span> In Stock & Healthy</span>
+                }
+            </div>
+            <p class="text-muted mb-0">
+                Department: <strong>@(Model.Category?.CategoryName ?? "Unassigned")</strong> &bull; Product ID: #@Model.ProductID
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-primary">
+                <i class="bi bi-pencil-square"></i> Edit Product
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-danger">
+                <i class="bi bi-trash3"></i> Delete
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Left Column: Specs & Financials -->
+    <div class="col-lg-8">
+        
+        <!-- Specifications Card -->
+        <div class="ew-card mb-4">
+            <div class="ew-card-header">
+                <h3 class="ew-card-title"><i class="bi bi-info-circle text-primary"></i> Technical Specifications</h3>
+                <span class="ew-badge ew-badge-neutral">Verified Item</span>
+            </div>
+            <div class="ew-card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">SKU / Item Code</span>
+                        <span class="font-mono fw-bold fs-6">@Model.SKU</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">Category Department</span>
+                        @if (Model.Category != null)
+                        {
+                            <a asp-controller="Categories" asp-action="Products" asp-route-id="@Model.CategoryID" class="fw-semibold text-decoration-none">
+                                <i class="bi bi-tag"></i> @Model.Category.CategoryName
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Uncategorized</span>
+                        }
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">Unit Selling Price</span>
+                        <span class="font-mono fw-bold fs-5 text-primary">@Model.UnitPrice.ToString("N2") EGP</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">Total Shelf Valuation</span>
+                        <span class="font-mono fw-bold fs-5 text-success">@totalValuation.ToString("N2") EGP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Telemetry Card -->
+        <div class="ew-card">
+            <div class="ew-card-header">
+                <h3 class="ew-card-title"><i class="bi bi-shield-check text-cyan"></i> Stock Telemetry & Restock Rules</h3>
+            </div>
+            <div class="ew-card-body">
+                <p class="text-secondary mb-3">
+                    Automated low stock detection actively monitors units on shelf against the safety threshold.
+                </p>
+                
+                <div class="row g-3 text-center">
+                    <div class="col-4">
+                        <div class="p-3 rounded-2" style="background-color: var(--bg-surface-secondary);">
+                            <span class="text-muted small d-block mb-1">Current Stock</span>
+                            <span class="h3 font-mono fw-bold mb-0 @(isOutOfStock ? "text-danger" : (isLowStock ? "text-warning" : "text-success"))">
+                                @Model.StockQuantity
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 rounded-2" style="background-color: var(--bg-surface-secondary);">
+                            <span class="text-muted small d-block mb-1">Alert Threshold</span>
+                            <span class="h3 font-mono fw-bold mb-0 text-secondary">
+                                &le; @Model.LowStockThreshold
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 rounded-2" style="background-color: var(--bg-surface-secondary);">
+                            <span class="text-muted small d-block mb-1">Health Status</span>
+                            <span class="h5 fw-bold mb-0 @(isOutOfStock ? "text-danger" : (isLowStock ? "text-warning" : "text-success"))">
+                                @(isOutOfStock ? "Depleted" : (isLowStock ? "Restock Needed" : "Optimal"))
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right Column: Quick Inbound & Control -->
+    <div class="col-lg-4">
+        
+        <!-- Stock Action Card -->
+        <div class="ew-card mb-4">
+            <div class="ew-card-header">
+                <h3 class="ew-card-title"><i class="bi bi-lightning-charge text-warning"></i> Inventory Quick Actions</h3>
+            </div>
+            <div class="ew-card-body d-flex flex-column gap-2">
+                <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-primary w-100">
+                    <i class="bi bi-cart-plus"></i> Order Stock from Supplier
+                </a>
+                <a asp-controller="Sales" asp-action="Create" class="ew-btn ew-btn-secondary w-100">
+                    <i class="bi bi-receipt"></i> Create Customer Sale
+                </a>
+                <hr style="border-color: var(--border);" />
+                <a asp-action="Edit" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-outline w-100">
+                    <i class="bi bi-sliders"></i> Modify Thresholds
+                </a>
+            </div>
+        </div>
+
+        <!-- Danger Zone Box -->
+        <div class="danger-zone-card">
+            <h5 class="text-danger fw-bold mb-1"><i class="bi bi-trash3-fill"></i> Danger Zone</h5>
+            <p class="small text-secondary mb-3">
+                Permanently eliminate this item from the warehouse catalog.
+            </p>
+            <a asp-action="Delete" asp-route-id="@Model.ProductID" class="ew-btn ew-btn-danger ew-btn-sm w-100">
+                Delete This Product
+            </a>
+        </div>
+
+    </div>
+
+</div>

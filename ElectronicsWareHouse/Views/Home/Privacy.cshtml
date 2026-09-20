@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Security & Governance";
+}
+
+<div class="d-flex flex-column gap-4" style="max-width: 840px; margin: 0 auto;">
+    <!-- Header -->
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 text-xs">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-secondary text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Security & Policy</li>
+            </ol>
+        </nav>
+        <h1 class="page-title mb-1">
+            <i class="bi bi-shield-check me-2 text-primary"></i>Enterprise Security & Governance
+        </h1>
+        <p class="text-secondary text-sm mb-0">Security protocols, database transaction guarantees, and audit compliance.</p>
+    </div>
+
+    <div class="ew-card">
+        <div class="ew-card-body d-flex flex-column gap-4 p-4">
+            <div>
+                <h6 class="fw-bold text-main mb-2">1. Inventory Audit & Traceability</h6>
+                <p class="text-secondary text-sm mb-0">
+                    All inventory adjustments, purchase intake orders, and sales deductions are committed through strict Entity Framework Core database transactions to guarantee ACID compliance and zero phantom stock drift.
+                </p>
+            </div>
+
+            <div>
+                <h6 class="fw-bold text-main mb-2">2. Supplier & Partner Confidentiality</h6>
+                <p class="text-secondary text-sm mb-0">
+                    Vendor wholesale pricing contracts, procurement lead times, and representative contact information are restricted to authorized warehouse operations personnel.
+                </p>
+            </div>
+
+            <div>
+                <h6 class="fw-bold text-main mb-2">3. Artificial Intelligence Telemetry</h6>
+                <p class="text-secondary text-sm mb-0">
+                    Inquiries evaluated via the Gemini AI inventory copilot are scoped solely to current operational warehouse metrics. No customer identifying records or payment tokens are transmitted outside secure enterprise boundaries.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

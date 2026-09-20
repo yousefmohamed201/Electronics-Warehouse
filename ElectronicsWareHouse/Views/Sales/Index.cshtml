@@ -1,0 +1,176 @@
+@model IEnumerable<ElectronicsWareHouse.Models.Sale>
+
+@{
+    ViewData["Title"] = "Sales Orders";
+    var salesList = Model?.ToList() ?? new List<ElectronicsWareHouse.Models.Sale>();
+    var totalRevenue = salesList.Sum(s => s.TotalAmount);
+    var totalOrders = salesList.Count;
+    var totalItemsSold = salesList.Sum(s => s.SaleItems?.Sum(i => i.Quantity) ?? 0);
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h1 class="page-title mb-1">
+                <i class="bi bi-receipt-cutoff me-2 text-primary"></i>Sales Orders
+            </h1>
+            <p class="text-secondary text-sm mb-0">Customer transactions, fulfillment history, and invoice records.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="ew-btn ew-btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>New Sale Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-3">
+        <div class="col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div class="kpi-icon primary">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="kpi-label">Gross Revenue</div>
+                <div class="kpi-value font-monospace">$@totalRevenue.ToString("N2")</div>
+                <div class="text-xs text-secondary mt-1">Across all recorded transactions</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div class="kpi-icon success">
+                    <i class="bi bi-bag-check"></i>
+                </div>
+                <div class="kpi-label">Completed Orders</div>
+                <div class="kpi-value">@totalOrders</div>
+                <div class="text-xs text-secondary mt-1">Fulfilled sales receipts</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div class="kpi-icon warning">
+                    <i class="bi bi-boxes"></i>
+                </div>
+                <div class="kpi-label">Units Sold</div>
+                <div class="kpi-value">@totalItemsSold</div>
+                <div class="text-xs text-secondary mt-1">Products dispatched to customers</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Ledger Card -->
+    <div class="ew-card">
+        <div class="ew-card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-primary"></i>
+                <span class="fw-semibold">Transaction Ledger</span>
+                <span class="ew-badge ew-badge-info ms-2">@totalOrders Records</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="max-width: 250px;">
+                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" id="salesSearchInput" class="form-control border-start-0" placeholder="Filter customer / ID..." onkeyup="filterSalesTable()" />
+                </div>
+            </div>
+        </div>
+
+        @if (salesList.Any())
+        {
+            <div class="table-responsive">
+                <table class="table ew-table align-middle mb-0" id="salesTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px;">Invoice #</th>
+                            <th style="width: 170px;">Date & Time</th>
+                            <th>Customer Account</th>
+                            <th style="width: 120px;" class="text-center">Items</th>
+                            <th style="width: 160px;" class="text-end">Total Amount</th>
+                            <th style="width: 120px;" class="text-center">Status</th>
+                            <th style="width: 100px;" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sale in salesList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="font-monospace fw-semibold text-primary">
+                                        INV-@sale.SaleID.ToString("D5")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="text-xs text-secondary font-monospace">
+                                        <i class="bi bi-calendar-event me-1"></i>@sale.SaleDate.ToString("yyyy-MM-dd")
+                                    </div>
+                                    <div class="text-xs text-muted font-monospace">
+                                        @sale.SaleDate.ToString("HH:mm")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle p-2 bg-light border text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="bi bi-person text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-main customer-name">
+                                                @(string.IsNullOrEmpty(sale.CustomerInfo) ? "Walk-in Customer" : sale.CustomerInfo)
+                                            </div>
+                                            <div class="text-xs text-secondary">Direct Client</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="ew-badge ew-badge-info">
+                                        @(sale.SaleItems?.Count ?? 0) line(s)
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="font-monospace fw-bold fs-6 text-main">
+                                        $@sale.TotalAmount.ToString("N2")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="ew-badge ew-badge-success">
+                                        <i class="bi bi-check2 me-1"></i>Paid
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Details" asp-route-id="@sale.SaleID" class="ew-btn ew-btn-secondary btn-sm" title="View Sales Receipt">
+                                        <i class="bi bi-receipt me-1"></i>Invoice
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="ew-card-body text-center py-5">
+                <div class="p-4 rounded-circle bg-light d-inline-flex mb-3 text-secondary">
+                    <i class="bi bi-cart-x fs-1"></i>
+                </div>
+                <h5 class="fw-semibold text-main">No sales orders recorded yet</h5>
+                <p class="text-secondary text-sm mb-4">Start generating sales invoices by creating your first order.</p>
+                <a asp-action="Create" class="ew-btn ew-btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Create First Sale
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterSalesTable() {
+            const query = document.getElementById("salesSearchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#salesTable tbody tr");
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? "" : "none";
+            });
+        }
+    </script>
+}

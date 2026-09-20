@@ -1,0 +1,259 @@
+@model IEnumerable<ElectronicsWareHouse.Models.Product>
+
+@{
+    ViewData["Title"] = "Product Catalog";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+}
+
+<!-- ==========================================
+     PAGE HEADER & ACTIONS
+     ========================================== -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Product Inventory</h1>
+        <p class="text-muted mb-0">
+            Manage electronic devices, components, SKU codes, pricing, and live inventory thresholds.
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="LowStock" class="ew-btn ew-btn-secondary">
+            <i class="bi bi-exclamation-triangle text-warning"></i> Low Stock Alerts
+        </a>
+        <a asp-action="Create" class="ew-btn ew-btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Product
+        </a>
+    </div>
+</div>
+
+<!-- ==========================================
+     SEARCH & FILTER TOOLBAR
+     ========================================== -->
+<div class="ew-card mb-4">
+    <div class="ew-card-body p-3">
+        <form method="get" action="@Url.Action("Index", "Products")" class="row g-2 align-items-center">
+            
+            <!-- Search Text -->
+            <div class="col-md-4">
+                <div class="input-icon-group">
+                    <i class="bi bi-search input-icon"></i>
+                    <input type="text" 
+                           name="search" 
+                           value="@ViewBag.Search" 
+                           class="ew-input" 
+                           placeholder="Search by product name or SKU..." />
+                </div>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-md-3">
+                <select name="categoryId" class="ew-select" asp-items="ViewBag.Categories">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <select name="status" class="ew-select">
+                    <option value="">All Stock Statuses</option>
+                    <option value="InStock" selected="@(ViewBag.Status?.ToString() == "InStock" ? "selected" : null)">In Stock Only</option>
+                    <option value="LowStock" selected="@(ViewBag.Status?.ToString() == "LowStock" ? "selected" : null)">Low Stock (Threshold Warning)</option>
+                    <option value="OutOfStock" selected="@(ViewBag.Status?.ToString() == "OutOfStock" ? "selected" : null)">Out of Stock</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="ew-btn ew-btn-primary flex-grow-1">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                <a href="@Url.Action("Index", "Products")" class="ew-btn ew-btn-outline" title="Reset Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================
+     PRODUCTS DATA TABLE
+     ========================================== -->
+<div class="ew-table-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="ew-empty-state">
+            <div class="empty-icon-wrap"><i class="bi bi-box-seam"></i></div>
+            <div class="empty-title">No Products Found</div>
+            <p class="empty-description">
+                @(string.IsNullOrWhiteSpace(ViewBag.Search as string) && ViewBag.CategoryId == null && string.IsNullOrWhiteSpace(ViewBag.Status as string)
+                    ? "Your warehouse catalog is currently empty. Start building your inventory."
+                    : "No products matched your search or filter criteria. Try adjusting your query.")
+            </p>
+            <div class="d-flex gap-2">
+                <a href="@Url.Action("Index", "Products")" class="ew-btn ew-btn-secondary">Clear Filters</a>
+                <a asp-action="Create" class="ew-btn ew-btn-primary"><i class="bi bi-plus-circle"></i> Add First Product</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="ew-table">
+                <thead>
+                    <tr>
+                        <th>Product & Specification</th>
+                        <th>SKU Code</th>
+                        <th>Category</th>
+                        <th>Unit Price</th>
+                        <th>Stock Level</th>
+                        <th>Threshold</th>
+                        <th class="text-end" style="width: 140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        var isLowStock = product.StockQuantity <= product.LowStockThreshold && product.StockQuantity > 0;
+                        var isOutOfStock = product.StockQuantity == 0;
+                        var rowClass = isOutOfStock ? "table-row-danger" : (isLowStock ? "table-row-warning" : "");
+
+                        <tr class="@rowClass">
+                            
+                            <!-- Product Name & Avatar -->
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="kpi-icon-wrap @(isOutOfStock ? "kpi-icon-danger" : (isLowStock ? "kpi-icon-warning" : "kpi-icon-primary"))" style="width: 38px; height: 38px; font-size: 1.1rem; border-radius: 8px;">
+                                        <i class="bi bi-cpu"></i>
+                                    </div>
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@product.ProductID" class="fw-bold text-decoration-none">
+                                            @product.ProductName
+                                        </a>
+                                        <div class="text-muted small">ID: #@product.ProductID</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- SKU -->
+                            <td>
+                                <span class="sku-badge"><i class="bi bi-upc-scan"></i> @product.SKU</span>
+                            </td>
+
+                            <!-- Category -->
+                            <td>
+                                <span class="ew-badge ew-badge-neutral">
+                                    @(product.Category?.CategoryName ?? "Unassigned")
+                                </span>
+                            </td>
+
+                            <!-- Price -->
+                            <td class="font-mono fw-semibold">
+                                @product.UnitPrice.ToString("N2") <span class="text-muted small">EGP</span>
+                            </td>
+
+                            <!-- Stock Indicator -->
+                            <td>
+                                @if (isOutOfStock)
+                                {
+                                    <span class="ew-badge ew-badge-danger">
+                                        <span class="badge-dot"></span> Out of Stock (0)
+                                    </span>
+                                }
+                                else if (isLowStock)
+                                {
+                                    <div>
+                                        <span class="ew-badge ew-badge-warning">
+                                            <span class="badge-dot"></span> Low Stock (@product.StockQuantity)
+                                        </span>
+                                        <div class="stock-progress">
+                                            <div class="stock-progress-fill bg-warning" style="width: @Math.Min(100, Math.Max(15, (product.StockQuantity * 100) / Math.Max(1, product.LowStockThreshold)))%;"></div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        <span class="ew-badge ew-badge-success">
+                                            <span class="badge-dot"></span> In Stock (@product.StockQuantity)
+                                        </span>
+                                        <div class="stock-progress">
+                                            <div class="stock-progress-fill bg-success" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+
+                            <!-- Low Stock Threshold -->
+                            <td class="text-muted small font-mono">
+                                &le; @product.LowStockThreshold units
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@product.ProductID" class="ew-btn ew-btn-ghost ew-btn-icon" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@product.ProductID" class="ew-btn ew-btn-ghost ew-btn-icon" title="Edit Product">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@product.ProductID" class="ew-btn ew-btn-ghost ew-btn-icon text-danger" title="Delete Product">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <div class="p-3 border-top" style="border-color: var(--border) !important;">
+                <ul class="ew-pagination">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" 
+                           asp-action="Index" 
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-categoryId="@ViewBag.CategoryId"
+                           asp-route-status="@ViewBag.Status">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" 
+                               asp-action="Index" 
+                               asp-route-page="@i"
+                               asp-route-search="@ViewBag.Search"
+                               asp-route-categoryId="@ViewBag.CategoryId"
+                               asp-route-status="@ViewBag.Status">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" 
+                           asp-action="Index" 
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-categoryId="@ViewBag.CategoryId"
+                           asp-route-status="@ViewBag.Status">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+</div>

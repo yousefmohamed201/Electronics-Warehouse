@@ -1,0 +1,180 @@
+@model IEnumerable<ElectronicsWareHouse.Models.Product>
+
+@{
+    ViewData["Title"] = "Warehouse Alerts";
+    var alertList = Model?.ToList() ?? new List<ElectronicsWareHouse.Models.Product>();
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h1 class="page-title mb-1">
+                <i class="bi bi-bell-fill me-2 text-warning"></i>Warehouse Notifications & Alerts
+            </h1>
+            <p class="text-secondary text-sm mb-0">Live automated telemetry notifications triggered by inventory reorder threshold conditions.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-primary">
+                <i class="bi bi-cart-plus me-1"></i>New Restock Order
+            </a>
+            <a asp-controller="Products" asp-action="LowStock" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-exclamation-triangle me-1"></i>Low Stock Command Center
+            </a>
+        </div>
+    </div>
+
+    @if (alertList.Any())
+    {
+        <!-- Alert Banner -->
+        <div class="alert alert-warning p-4 rounded-3 border-warning-subtle d-flex flex-wrap align-items-center justify-content-between gap-3 shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 bg-warning bg-opacity-25 text-warning d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Attention Required: @alertList.Count Low Stock Alert(s)</h5>
+                    <p class="text-secondary text-sm mb-0">These items have breached safety buffer thresholds and require procurement intervention.</p>
+                </div>
+            </div>
+            <a asp-controller="Purchases" asp-action="Create" class="ew-btn ew-btn-primary btn-sm">
+                <i class="bi bi-truck me-1"></i>Reorder All Items
+            </a>
+        </div>
+
+        <!-- Alert Table Card -->
+        <div class="ew-card">
+            <div class="ew-card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-exclamation text-warning"></i>
+                    <span class="fw-semibold">Active Inventory Violations</span>
+                    <span class="ew-badge ew-badge-warning ms-2">@alertList.Count Critical</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="max-width: 250px;">
+                        <span class="input-group-text bg-light border-end-0 text-secondary"><i class="bi bi-search"></i></span>
+                        <input type="text" id="alertsSearchInput" class="form-control border-start-0" placeholder="Filter alerts..." onkeyup="filterAlertsTable()" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table ew-table align-middle mb-0" id="alertsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px;">SKU</th>
+                            <th>Product Information</th>
+                            <th>Category</th>
+                            <th style="width: 140px;" class="text-center">Current Stock</th>
+                            <th style="width: 140px;" class="text-center">Safety Threshold</th>
+                            <th style="width: 160px;" class="text-center">Depletion Level</th>
+                            <th style="width: 140px;" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in alertList)
+                        {
+                            var deficit = product.LowStockThreshold - product.StockQuantity;
+                            var pct = product.LowStockThreshold > 0 
+                                ? Math.Min(100, Math.Max(5, (int)((double)product.StockQuantity / product.LowStockThreshold * 100))) 
+                                : 0;
+                            <tr>
+                                <td>
+                                    <span class="font-monospace text-xs text-secondary fw-semibold">
+                                        @product.SKU
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="p-2 rounded bg-light border text-warning">
+                                            <i class="bi bi-cpu"></i>
+                                        </div>
+                                        <div>
+                                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductID" class="fw-semibold text-main text-decoration-none hover-primary">
+                                                @product.ProductName
+                                            </a>
+                                            <div class="text-xs text-secondary font-monospace">Product ID #@product.ProductID</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ew-badge ew-badge-info text-xs">
+                                        @(product.Category?.CategoryName ?? "Unassigned")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (product.StockQuantity <= 0)
+                                    {
+                                        <span class="ew-badge ew-badge-danger">
+                                            <i class="bi bi-x-circle me-1"></i>0 Units (Depleted)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ew-badge ew-badge-danger">
+                                            <i class="bi bi-arrow-down me-1"></i>@product.StockQuantity pcs
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="font-monospace text-sm fw-medium text-secondary">
+                                        @product.LowStockThreshold pcs
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="progress" style="height: 6px; background-color: var(--surface-bg-alt);">
+                                            <div class="progress-bar @(product.StockQuantity <= 0 ? "bg-danger" : "bg-warning")" role="progressbar" style="width: @pct%;"></div>
+                                        </div>
+                                        <span class="text-xs text-muted font-monospace">@deficit pcs deficit</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.ProductID" class="ew-btn ew-btn-primary btn-sm">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Restock
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="ew-card">
+            <div class="ew-card-body text-center py-5">
+                <div class="p-4 rounded-circle bg-success bg-opacity-10 text-success d-inline-flex mb-3">
+                    <i class="bi bi-shield-check fs-1"></i>
+                </div>
+                <h4 class="fw-semibold text-main mb-2">All Inventory Channels Nominal</h4>
+                <p class="text-secondary text-sm mb-4" style="max-width: 480px; margin: 0 auto;">
+                    Zero threshold violations detected. Every product in the warehouse holds stock quantities exceeding safety reorder thresholds.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a asp-controller="Products" asp-action="Index" class="ew-btn ew-btn-secondary">
+                        <i class="bi bi-box-seam me-1"></i>Inspect All Inventory
+                    </a>
+                    <a asp-controller="Dashboard" asp-action="Index" class="ew-btn ew-btn-primary">
+                        <i class="bi bi-speedometer2 me-1"></i>Warehouse Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function filterAlertsTable() {
+            const query = document.getElementById("alertsSearchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#alertsTable tbody tr");
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? "" : "none";
+            });
+        }
+    </script>
+}

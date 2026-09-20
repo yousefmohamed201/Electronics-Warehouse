@@ -1,0 +1,201 @@
+@model ElectronicsWareHouse.Models.Purchase
+
+@{
+    ViewData["Title"] = $"Purchase Order #{Model.PurchaseID}";
+}
+
+<div class="d-flex flex-column gap-4">
+    <!-- Header with Action Toolbar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-xs">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-secondary text-decoration-none">Purchases</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">PO-@Model.PurchaseID.ToString("D5")</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <h1 class="page-title mb-0">
+                    <i class="bi bi-receipt me-2 text-primary"></i>Purchase Order #@Model.PurchaseID.ToString("D5")
+                </h1>
+                <span class="ew-badge ew-badge-success">Received & Stocked</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="ew-btn ew-btn-secondary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>Print Voucher
+            </button>
+            <a asp-action="Delete" asp-route-id="@Model.PurchaseID" class="ew-btn ew-btn-danger">
+                <i class="bi bi-trash3 me-1"></i>Delete PO
+            </a>
+            <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Ledger
+            </a>
+        </div>
+    </div>
+
+    <!-- PO Overview Card & Supplier Summary -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ew-card">
+                <div class="ew-card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-text text-primary"></i>
+                        <span class="fw-semibold">Line Items Breakdown</span>
+                    </div>
+                    <span class="text-xs text-secondary">@(Model.PurchaseItems?.Count ?? 0) item(s)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table ew-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product Item</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Unit Cost</th>
+                                <th class="text-end">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.PurchaseItems != null && Model.PurchaseItems.Any())
+                            {
+                                int idx = 1;
+                                foreach (var item in Model.PurchaseItems)
+                                {
+                                    <tr>
+                                        <td class="text-secondary text-xs">@idx</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="p-2 rounded bg-light border text-primary">
+                                                    <i class="bi bi-cpu"></i>
+                                                </div>
+                                                <div>
+                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductID" class="fw-semibold text-main text-decoration-none hover-primary">
+                                                        @(item.Product?.ProductName ?? "Product #" + item.ProductID)
+                                                    </a>
+                                                    <div class="text-xs text-secondary font-monospace">SKU: @(item.Product?.SKU ?? "N/A")</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="font-monospace fw-semibold">@item.Quantity</span>
+                                            <span class="text-xs text-muted ms-1">pcs</span>
+                                        </td>
+                                        <td class="text-end font-monospace text-secondary">
+                                            $@item.UnitCost.ToString("N2")
+                                        </td>
+                                        <td class="text-end font-monospace fw-semibold text-main">
+                                            $@((item.Quantity * item.UnitCost).ToString("N2"))
+                                        </td>
+                                    </tr>
+                                    idx++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No items recorded for this order.</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: var(--surface-bg-alt);">
+                                <td colspan="3" class="text-end text-xs fw-semibold text-uppercase text-secondary">Purchase Order Total:</td>
+                                <td colspan="2" class="text-end">
+                                    <span class="fs-5 fw-bold font-monospace text-primary">$@Model.TotalAmount.ToString("N2")</span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier & Metadata Panel -->
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-4">
+                <!-- Metadata Card -->
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <span class="fw-semibold">Receipt Information</span>
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-3">
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Receipt Date & Time</span>
+                            <div class="font-monospace text-sm fw-medium text-main">
+                                <i class="bi bi-calendar3 me-1 text-secondary"></i>@Model.PurchaseDate.ToString("yyyy-MM-dd HH:mm:ss")
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Order Voucher Reference</span>
+                            <div class="font-monospace text-sm fw-medium text-main">
+                                PO-@Model.PurchaseID.ToString("D5")
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-secondary text-uppercase fw-semibold d-block mb-1">Inventory Treatment</span>
+                            <span class="ew-badge ew-badge-success text-xs">
+                                <i class="bi bi-check-circle me-1"></i>Warehouse Stock Added
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplier Partner Card -->
+                <div class="ew-card">
+                    <div class="ew-card-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-building text-primary"></i>
+                            <span class="fw-semibold">Vendor Partner</span>
+                        </div>
+                        @if (Model.Supplier != null)
+                        {
+                            <a asp-controller="Suppliers" asp-action="Details" asp-route-id="@Model.SupplierID" class="text-xs text-primary text-decoration-none">
+                                View Profile <i class="bi bi-chevron-right"></i>
+                            </a>
+                        }
+                    </div>
+                    <div class="ew-card-body d-flex flex-column gap-2">
+                        <h6 class="fw-bold text-main mb-1">
+                            @(Model.Supplier?.SupplierName ?? "Direct Supplier / Unassigned")
+                        </h6>
+                        @if (Model.Supplier != null)
+                        {
+                            @if (!string.IsNullOrEmpty(Model.Supplier.ContactName))
+                            {
+                                <div class="text-xs text-secondary d-flex align-items-center gap-2">
+                                    <i class="bi bi-person"></i>
+                                    <span>@Model.Supplier.ContactName</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Supplier.Phone))
+                            {
+                                <div class="text-xs text-secondary d-flex align-items-center gap-2">
+                                    <i class="bi bi-telephone"></i>
+                                    <a href="tel:@Model.Supplier.Phone" class="text-secondary text-decoration-none font-monospace">@Model.Supplier.Phone</a>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Supplier.Email))
+                            {
+                                <div class="text-xs text-secondary d-flex align-items-center gap-2">
+                                    <i class="bi bi-envelope"></i>
+                                    <a href="mailto:@Model.Supplier.Email" class="text-secondary text-decoration-none">@Model.Supplier.Email</a>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Supplier.Address))
+                            {
+                                <div class="text-xs text-secondary d-flex align-items-start gap-2 mt-1">
+                                    <i class="bi bi-geo-alt mt-1"></i>
+                                    <span>@Model.Supplier.Address</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

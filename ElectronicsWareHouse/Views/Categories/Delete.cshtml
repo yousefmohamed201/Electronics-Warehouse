@@ -1,0 +1,79 @@
+@model ElectronicsWareHouse.Models.Category
+
+@{
+    ViewData["Title"] = "Delete Category - " + Model.CategoryName;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="ew-btn ew-btn-ghost ew-btn-sm mb-2">
+        <i class="bi bi-arrow-left"></i> Cancel & Return to Categories
+    </a>
+    <h1 class="h2 mb-1 text-danger d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-octagon-fill"></i> Delete Category Department
+    </h1>
+    <p class="text-muted mb-0">
+        Review category status before executing deletion.
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <div class="ew-card border-danger mb-4">
+            <div class="ew-card-header bg-danger-subtle text-danger">
+                <h3 class="ew-card-title text-danger">
+                    <i class="bi bi-shield-exclamation"></i> Deletion Safety Warning
+                </h3>
+            </div>
+            <div class="ew-card-body p-4">
+                <p class="text-danger fw-semibold mb-3">
+                    Are you sure you want to remove the category department <strong>"@Model.CategoryName"</strong>?
+                </p>
+
+                <div class="danger-zone-card mb-4">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle-fill text-danger fs-5 mt-1"></i>
+                        <div>
+                            <strong>Referential Constraint Notice:</strong>
+                            <p class="small text-secondary mb-0 mt-1">
+                                If this category currently contains assigned products in the warehouse catalog, Entity Framework and the SQL Server database will prevent deletion to preserve data integrity. You must reassign or remove all linked products before this category can be removed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ew-card p-3 mb-4" style="background-color: var(--bg-surface-secondary);">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Department Name</span>
+                            <span class="fw-bold">@Model.CategoryName</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Department ID</span>
+                            <span class="font-mono fw-bold">#@Model.CategoryID</span>
+                        </div>
+                        <div class="col-12">
+                            <span class="text-muted small d-block">Description</span>
+                            <span class="text-secondary">@(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided." : Model.Description)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2 justify-content-end">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="CategoryID" />
+
+                    <a asp-action="Index" class="ew-btn ew-btn-secondary">
+                        Cancel & Return
+                    </a>
+                    <button type="submit" class="ew-btn ew-btn-danger">
+                        <i class="bi bi-trash3-fill"></i> Permanently Delete Category
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
